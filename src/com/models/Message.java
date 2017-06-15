@@ -1,10 +1,11 @@
 package com.models;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Message {
+public class Message implements Serializable{
 
 	private int message_id;
 	private String text;
@@ -41,6 +42,18 @@ public class Message {
 
 	public void setText(String text) {
 		this.text = text;
+	}
+
+	public Date getCreated() {
+		return created;
+	}
+	
+	public String getCreatedFormated() {
+		return ft.format(created);
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
 	}
 
 	@Override

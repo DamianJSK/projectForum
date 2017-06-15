@@ -9,15 +9,17 @@
 <body>
 	<p1>Welcome in this Forum</p1>
 	<form action="Login">
-	<pre>
-		Enter user name: <input type="text" name="uname"><br>
-		Enter user password: <input type="text" name="upass"><br>
+		<pre>
+		Enter user name: <input type="text" name="uname"
+				placeholder="enter name"><br>
+		Enter user password: <input type="text" name="upass"
+				placeholder="enter pass"><br>
 		<%
-		if (session.getAttribute("error") != null ) {
-			out.println(session.getAttribute("error"));
-			session.removeAttribute("error");
-		} 
-	%>
+			if (session.getAttribute("error") != null) {
+				out.println(session.getAttribute("error"));
+				session.removeAttribute("error");
+			}
+		%>
 		<input type="submit" value="login"><br>
 	</pre>
 	</form>
