@@ -7,7 +7,7 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<p1>Welcome to IBIZA</p1>
+	<p1>Welcome in this Forum</p1>
 	<form action="Login">
 		Enter user name: <input type="text" name="uname"><br>
 		Enter user password: <input type="text" name="upass"><br>
