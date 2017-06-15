@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.dao.DAOforum;
+
 
 @WebServlet("/Login")
 public class Login extends HttpServlet {
@@ -31,13 +33,19 @@ public class Login extends HttpServlet {
 		String uname = request.getParameter("uname");
 		String upass = request.getParameter("upass");
 		
-		if(uname.equals("admin") && upass.equals("pass")){
+		DAOforum daoForum = DAOforum.getDAOforum();
+		
+		if(daoForum.authentication(uname, upass)){
+//		if(false){
 			HttpSession session = request.getSession();
 			session.setAttribute("username", uname);
 			response.sendRedirect("home.jsp");
 		}else{
 			response.sendRedirect("login.jsp");
 		}
+//		HttpSession session = request.getSession();
+//		session.setAttribute("username", uname);
+//		response.sendRedirect("login.jsp");
 	}
 
 	/**

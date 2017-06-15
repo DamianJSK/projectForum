@@ -9,9 +9,11 @@
 <body>
 	<p1>Welcome in this Forum</p1>
 	<form action="Login">
+	<pre>
 		Enter user name: <input type="text" name="uname"><br>
 		Enter user password: <input type="text" name="upass"><br>
 		<input type="submit" value="login"><br>
+	</pre>
 	</form>
 </body>
 </html>
