@@ -12,6 +12,13 @@
 			response.sendRedirect("login.jsp");
 		} 
 	%>
-This is forum
+	WELCOME OUTLANDER! You are ${username}<br>
+	
+	<form action="Forum">
+	<a href="Forum">Go to FORUM</a>
+	</form>
+	<form action="Logout">
+	<input type="submit" value="Logout">
+	</form>
 </body>
 </html>

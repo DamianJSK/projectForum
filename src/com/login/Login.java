@@ -34,7 +34,7 @@ public class Login extends HttpServlet {
 		if(uname.equals("admin") && upass.equals("pass")){
 			HttpSession session = request.getSession();
 			session.setAttribute("username", uname);
-			response.sendRedirect("welcome.jsp");
+			response.sendRedirect("home.jsp");
 		}else{
 			response.sendRedirect("login.jsp");
 		}
