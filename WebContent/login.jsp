@@ -12,6 +12,12 @@
 	<pre>
 		Enter user name: <input type="text" name="uname"><br>
 		Enter user password: <input type="text" name="upass"><br>
+		<%
+		if (session.getAttribute("error") != null ) {
+			out.println(session.getAttribute("error"));
+			session.removeAttribute("error");
+		} 
+	%>
 		<input type="submit" value="login"><br>
 	</pre>
 	</form>

@@ -41,11 +41,10 @@ public class Login extends HttpServlet {
 			session.setAttribute("username", uname);
 			response.sendRedirect("home.jsp");
 		}else{
+			HttpSession session = request.getSession();
+			session.setAttribute("error", "Invalid login or password");
 			response.sendRedirect("login.jsp");
 		}
-//		HttpSession session = request.getSession();
-//		session.setAttribute("username", uname);
-//		response.sendRedirect("login.jsp");
 	}
 
 	/**
