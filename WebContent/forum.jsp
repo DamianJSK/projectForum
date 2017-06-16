@@ -22,7 +22,7 @@
 			<tr>
 				<td>Message ID</td>
 				<td>Message text</td>
-				<td>Created</td>
+				<td>Created/Edited</td>
 				<td>Options</td>
 			</tr>
 			<%
@@ -31,8 +31,8 @@
 			<tr>
 				<td><%= Integer.toString(ms.getMessage_id())  %></td>
 				<td><%= ms.getText() %></td>
-				<td><%= ms.getCreatedFormated()  %></td>
-				<td><a href="./Edit?messageId=<%=ms.getMessage_id() %>">Edit</a>
+				<td><%= ms.getCreatedFormated()  %>/<%= ms.getEditedFormated()  %></td>
+				<td><a href="./edit.jsp?messageId=<%=ms.getMessage_id() %>">Edit</a>
 				<a href="./Delete?messageId=<%=ms.getMessage_id() %>">Delete</a>
 				</td>
 			</tr>

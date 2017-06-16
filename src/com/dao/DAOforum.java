@@ -80,7 +80,7 @@ public class DAOforum {
 			ResultSet rS;
 			rS = st.executeQuery("select * from message;");
 			while (rS.next()) {
-				Message ms = new Message(rS.getString("message_id"), rS.getString("text"), rS.getString("created"));
+				Message ms = new Message(rS.getString("message_id"), rS.getString("text"), rS.getString("created"), rS.getString("edited"));
 				messages.add(ms);
 				System.out.println(ms.toString());
 			}
@@ -100,11 +100,12 @@ public class DAOforum {
 		int updated = 0;
 		Message ms;
 		try {
-			String insert = "Insert into message (text, created) values(?, ?)";
+			String insert = "Insert into message (text, created, edited) values(?, ?, ?)";
 			pS = (PreparedStatement) con.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
 			ms = new Message(text);
 			pS.setString(1, ms.getText());
 			pS.setString(2, ms.getCreatedFormated());
+			pS.setString(3, ms.getCreatedFormated());
 			updated = pS.executeUpdate();
 			rS = pS.getGeneratedKeys();
 			rS.next();  
@@ -150,6 +151,30 @@ public class DAOforum {
 
 			System.out.println("Deleted message with id: "+message_id+" /tDeleted from message: "+ delFromMessage+
 					"/tDeleted from alleowed: "+ delFromAllowed);
+			con.close();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	public boolean updateMessage(String text, String message_id) {
+		connect();
+		PreparedStatement pS;
+		ResultSet rS;
+		int updateFromMessage;
+		Message ms;
+		try {;
+			String update = "UPDATE message SET text=? WHERE message_id=?";
+			pS = (PreparedStatement) con.prepareStatement(update);
+			pS.setString(1, text);
+			pS.setString(2, message_id);
+			updateFromMessage = pS.executeUpdate();
+
+
+			System.out.println("Updated message with id: "+message_id+" \tUpdated text message: "+ text);
 			con.close();
 			
 		} catch (SQLException e) {

@@ -2,6 +2,7 @@ package com.login;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -32,8 +33,14 @@ public class Forum extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession();
 		ArrayList<Message> messages;
+		HashMap<Integer, Message> mapMessages = new HashMap<>();
 		DAOforum daoForum = DAOforum.getDAOforum();
 		messages = daoForum.getAllMessages();
+		for(Message ms : messages){
+			mapMessages.put(ms.getMessage_id(), ms);
+		}
+		
+		session.setAttribute("mapMessages", mapMessages);
 		session.setAttribute("messageList", messages);
 		response.sendRedirect("forum.jsp");
 	}

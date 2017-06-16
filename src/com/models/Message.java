@@ -10,7 +10,8 @@ public class Message implements Serializable{
 	private int message_id;
 	private String text;
 	private Date created;
-    private SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
+	private Date edited;
+    private SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
 	
 	public Message() {
 		super();
@@ -23,12 +24,13 @@ public class Message implements Serializable{
 		this.created = new Date();
 	}
 	
-	public Message(String message_id, String text, String created) {
+	public Message(String message_id, String text, String created, String edited) {
 		super();
 		this.message_id = Integer.parseInt(message_id);
 		this.text = text;
 		try {
 			this.created = ft.parse(created);
+			this.edited = ft.parse(edited);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -61,6 +63,19 @@ public class Message implements Serializable{
 
 	public void setCreated(Date created) {
 		this.created = created;
+	}
+
+	public Date getEdited() {
+		return edited;
+	}
+
+
+	public void setEdited(Date edited) {
+		this.edited = edited;
+	}
+
+	public String getEditedFormated() {
+		return ft.format(edited);
 	}
 
 	@Override
