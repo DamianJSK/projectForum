@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
-<%@ page import="java.io.*,java.util.*, com.models.Message"%>
+<%@ page import="java.io.*,java.util.*, com.models.*"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -31,10 +31,10 @@
 			<tr>
 				<td><%= Integer.toString(ms.getMessage_id())  %></td>
 				<td><%=ms.getText()%></td>
-				<td><%= ms.getCreatedFormated()  %>/<%= ms.getEditedFormated()  %></td>
-				<td><a href="./edit.jsp?messageId=<%=ms.getMessage_id() %>">Edit</a>
-				<a href="./Delete?messageId=<%=ms.getMessage_id() %>">Delete</a>
-				</td>
+				<td><%= ms.getCreatedFormated()%> / <%= ms.getEditedFormated()%></td>
+				<td><%if(ms.getCreated_by()==((UserDB)session.getAttribute("logged_user")).getUser_id()){ 
+				out.print("<a href="+"./edit.jsp?messageId="+ms.getMessage_id()+">Edit</a> / <a href="+
+				"./Delete?messageId="+ms.getMessage_id()+">Delete</a>");}%></td>
 			</tr>
 			<% } %>
 		</tbody>
