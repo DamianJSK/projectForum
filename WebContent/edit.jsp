@@ -22,7 +22,7 @@
 	%>
 
 	<form action="Edit" method="POST">
-		<input type="hidden" name="message_id" value="<%=message_id%>" />
+		<input type="hidden" name="messageId" value="<%=message_id%>" />
 		<textarea type="input" name="message" rows="10" cols="25"
 			maxlength="200"><%=text%></textarea>
 		<br> <input type="submit" value="Zapisz">

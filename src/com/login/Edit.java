@@ -1,13 +1,17 @@
 package com.login;
 
 import java.io.IOException;
+import java.util.HashMap;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.dao.DAOforum;
+import com.models.Message;
 
 /**
  * Servlet implementation class Edit
@@ -38,11 +42,17 @@ public class Edit extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("Served at: "+request.getContextPath());
 		String text = request.getParameter("message");
-		String message_id = request.getParameter("message_id");
+		String message_id = request.getParameter("messageId");
+		
+		HttpSession session = request.getSession();
+		int created_by = ((HashMap<Integer, Message>)session.getAttribute("mapMessages")).get(Integer.parseInt(message_id)).getCreated_by();
+		int user_id = (Integer)session.getAttribute("user_id");
 		
 		DAOforum daoForum = DAOforum.getDAOforum();
 		
-		if(daoForum.updateMessage(text, message_id)){
+		if(created_by!=user_id){
+			response.sendRedirect("Forum");
+		}else if(daoForum.updateMessage(text, message_id)){
 			response.sendRedirect("Forum");
 		}else{
 			response.sendRedirect("home.jsp");

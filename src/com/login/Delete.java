@@ -1,13 +1,17 @@
 package com.login;
 
 import java.io.IOException;
+import java.util.HashMap;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.dao.DAOforum;
+import com.models.Message;
 
 /**
  * Servlet implementation class Delete
@@ -31,8 +35,15 @@ public class Delete extends HttpServlet {
 		System.out.println("Served at: "+request.getContextPath());
 		String message_id = request.getParameter("messageId");
 		DAOforum daoForum = DAOforum.getDAOforum();
+
+		HttpSession session = request.getSession();
+		int created_by = ((HashMap<Integer, Message>)session.getAttribute("mapMessages")).get(Integer.parseInt(message_id)).getCreated_by();
+		int user_id = (Integer)session.getAttribute("user_id");
+
 		
-		if(daoForum.deleteMessage(message_id)){
+		if(created_by!=user_id){
+			response.sendRedirect("Forum");
+		}else	if(daoForum.deleteMessage(message_id)){
 			response.sendRedirect("Forum");
 		}else{
 			response.sendRedirect("home.jsp");
