@@ -9,6 +9,7 @@ public class Message implements Serializable{
 
 	private int message_id;
 	private String text;
+	private int created_by;
 	private Date created;
 	private Date edited;
     private SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
@@ -24,10 +25,11 @@ public class Message implements Serializable{
 		this.created = new Date();
 	}
 	
-	public Message(String message_id, String text, String created, String edited) {
+	public Message(String message_id, String text, String created_by, String created, String edited) {
 		super();
 		this.message_id = Integer.parseInt(message_id);
 		this.text = text;
+		this.created_by = Integer.parseInt(created_by);
 		try {
 			this.created = ft.parse(created);
 			this.edited = ft.parse(edited);

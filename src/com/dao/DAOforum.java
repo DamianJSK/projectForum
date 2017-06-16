@@ -80,7 +80,8 @@ public class DAOforum {
 			ResultSet rS;
 			rS = st.executeQuery("select * from message;");
 			while (rS.next()) {
-				Message ms = new Message(rS.getString("message_id"), rS.getString("text"), rS.getString("created"), rS.getString("edited"));
+				Message ms = new Message(rS.getString("message_id"), rS.getString("text"), rS.getString("created_by"), 
+						rS.getString("created"), rS.getString("edited"));
 				messages.add(ms);
 				System.out.println(ms.toString());
 			}
@@ -100,12 +101,13 @@ public class DAOforum {
 		int updated = 0;
 		Message ms;
 		try {
-			String insert = "Insert into message (text, created, edited) values(?, ?, ?)";
+			String insert = "Insert into message (text, created_by, created, edited) values(?, ?, ?, ?)";
 			pS = (PreparedStatement) con.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
 			ms = new Message(text);
 			pS.setString(1, ms.getText());
-			pS.setString(2, ms.getCreatedFormated());
+			pS.setString(2, Integer.toString(logged_user.getUser_id()));
 			pS.setString(3, ms.getCreatedFormated());
+			pS.setString(4, ms.getCreatedFormated());
 			updated = pS.executeUpdate();
 			rS = pS.getGeneratedKeys();
 			rS.next();  
@@ -117,7 +119,7 @@ public class DAOforum {
 			pS.setString(1, Integer.toString(logged_user.getUser_id()));
 			pS.setString(2, Integer.toString(message_id));
 			pS.executeUpdate();
-			
+
 			con.close();
 			
 		} catch (SQLException e) {

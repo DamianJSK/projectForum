@@ -30,7 +30,7 @@
 			for(Message ms : messages){  %>
 			<tr>
 				<td><%= Integer.toString(ms.getMessage_id())  %></td>
-				<td><%= ms.getText() %></td>
+				<td><%=ms.getText()%></td>
 				<td><%= ms.getCreatedFormated()  %>/<%= ms.getEditedFormated()  %></td>
 				<td><a href="./edit.jsp?messageId=<%=ms.getMessage_id() %>">Edit</a>
 				<a href="./Delete?messageId=<%=ms.getMessage_id() %>">Delete</a>
