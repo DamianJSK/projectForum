@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.dao.DAOforum;
+import com.models.UserDB;
 
 
 @WebServlet("/Login")
@@ -34,11 +35,11 @@ public class Login extends HttpServlet {
 		String upass = request.getParameter("upass");
 		
 		DAOforum daoForum = DAOforum.getDAOforum();
-		int user_id = daoForum.authentication(uname, upass);
-		if(user_id != 0){
+		UserDB logged_user = daoForum.authentication(uname, upass);
+		if(logged_user != null){
 			session = request.getSession();
-			session.setAttribute("username", uname);
-			session.setAttribute("user_id", user_id);
+			session.setAttribute("logged_user", logged_user);
+			session.setAttribute("username", logged_user.getUser_name());
 			response.sendRedirect("home.jsp");
 		}else{
 			session = request.getSession();

@@ -1,22 +1,25 @@
 package com.login;
 
 import java.io.IOException;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-@WebServlet("/Logout")
-public class Logout extends HttpServlet {
+import com.dao.DAOforum;
+
+/**
+ * Servlet implementation class Delete
+ */
+@WebServlet("/Delete")
+public class Delete extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public Logout() {
+    public Delete() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -25,10 +28,15 @@ public class Logout extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession();
-		session.removeAttribute("logged_user");
-		session.invalidate();
-		response.sendRedirect("login.jsp");
+		System.out.println("Served at: "+request.getContextPath());
+		String message_id = request.getParameter("messageId");
+		DAOforum daoForum = DAOforum.getDAOforum();
+		
+		if(daoForum.deleteMessage(message_id)){
+			response.sendRedirect("Forum");
+		}else{
+			response.sendRedirect("home.jsp");
+		}
 	}
 
 	/**

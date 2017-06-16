@@ -9,8 +9,7 @@ public class UserDB {
 	private int user_id;
 	private String user_name;
 	private int persmissions_id;
-	private String password;
-	private Date date;
+	private Date lastLoginDate;
     private SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
 	
 	public UserDB() {
@@ -18,14 +17,13 @@ public class UserDB {
 	}
 
 
-	public UserDB(String user_id, String user_name, String persmissions_id, String password, String date) {
+	public UserDB(String user_id, String user_name, String persmissions_id, String date) {
 		super();
 		this.user_id = Integer.parseInt(user_id);
 		this.user_name = user_name;
 		this.persmissions_id =  Integer.parseInt(persmissions_id);
-		this.password = password;
 	    try {
-			this.date = ft.parse(date);
+			this.lastLoginDate = ft.parse(date);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -64,23 +62,13 @@ public class UserDB {
 	}
 
 
-	public String getPassword() {
-		return password;
+	public Date getLastLoginDate() {
+		return lastLoginDate;
 	}
 
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-
-	public Date getDate() {
-		return date;
-	}
-
-
-	public void setDate(Date date) {
-		this.date = date;
+	public void setLastLoginDate(Date date) {
+		this.lastLoginDate = date;
 	}
 	
 	

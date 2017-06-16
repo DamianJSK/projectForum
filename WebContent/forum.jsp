@@ -9,7 +9,7 @@
 </head>
 <body>
 	<%
-		if (session.getAttribute("username") == null) {
+		if (session.getAttribute("logged_user") == null) {
 			response.sendRedirect("login.jsp");
 		}
 	%>
@@ -20,9 +20,10 @@
 	<table border="1">
 		<tbody>
 			<tr>
-				<td>message ID</td>
-				<td>message text</td>
-				<td>created</td>
+				<td>Message ID</td>
+				<td>Message text</td>
+				<td>Created</td>
+				<td>Options</td>
 			</tr>
 			<%
 			ArrayList<Message> messages = (ArrayList<Message>)session.getAttribute("messageList");
@@ -31,6 +32,9 @@
 				<td><%= Integer.toString(ms.getMessage_id())  %></td>
 				<td><%= ms.getText() %></td>
 				<td><%= ms.getCreatedFormated()  %></td>
+				<td><a href="./Edit?messageId=<%=ms.getMessage_id() %>">Edit</a>
+				<a href="./Delete?messageId=<%=ms.getMessage_id() %>">Delete</a>
+				</td>
 			</tr>
 			<% } %>
 		</tbody>

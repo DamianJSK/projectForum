@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.dao.DAOforum;
+import com.models.UserDB;
 
 /**
  * Servlet implementation class NewMessage
@@ -33,9 +34,9 @@ public class NewMessage extends HttpServlet {
 		String text = request.getParameter("message");
 		DAOforum daoForum = DAOforum.getDAOforum();
 		HttpSession session = request.getSession();
-		int user_id = (Integer)session.getAttribute("user_id");
+		UserDB logged_user = (UserDB)session.getAttribute("logged_user");
 		
-		if(daoForum.addMessage(text, user_id)){
+		if(daoForum.addMessage(text, logged_user)){
 			response.sendRedirect("Forum");
 		}else{
 			response.sendRedirect("home.jsp");

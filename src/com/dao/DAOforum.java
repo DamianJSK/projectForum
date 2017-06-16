@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.models.Message;
+import com.models.UserDB;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.PreparedStatement;
 import com.mysql.jdbc.Statement;
@@ -39,10 +40,11 @@ public class DAOforum {
 
 	}
 
-	public int authentication(String uName, String uPass) {
+	public UserDB authentication(String uName, String uPass) {
 		connect();
 		PreparedStatement pS;
 		ResultSet rS;
+		UserDB user;
 		try {
 			pS = (PreparedStatement) con
 					.prepareStatement("select * from usersdb where user_name=? and password_hash=?");
@@ -51,15 +53,21 @@ public class DAOforum {
 			rS = pS.executeQuery();
 
 			if (rS.next()) {
-				return Integer.parseInt(rS.getString("user_id"));
+				String user_id = rS.getString("user_id");
+				String user_name = rS.getString("user_name");
+				String permissions_id = rS.getString("permissions_id");
+				String last_login = rS.getString("last_login");
+ 
+				user = new UserDB(user_id, user_name, permissions_id, last_login);
+				return user;
 			} else {
-				return 0;
+				return null;
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return 0;
+		return null;
 	}
 
 	public ArrayList<Message> getAllMessages() {
@@ -85,7 +93,7 @@ public class DAOforum {
 		return messages;
 	}
 
-	public boolean addMessage(String text, int user_id) {
+	public boolean addMessage(String text, UserDB logged_user) {
 		connect();
 		PreparedStatement pS;
 		ResultSet rS;
@@ -105,7 +113,7 @@ public class DAOforum {
 
 			insert = "Insert into allowed_messages (user_id, message_id) values(?, ?)";
 			pS = (PreparedStatement) con.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
-			pS.setString(1, Integer.toString(user_id));
+			pS.setString(1, Integer.toString(logged_user.getUser_id()));
 			pS.setString(2, Integer.toString(message_id));
 			pS.executeUpdate();
 			
@@ -120,6 +128,35 @@ public class DAOforum {
 		} else {
 			return false;
 		}
+	}
+	
+	public boolean deleteMessage(String message_id){
+		connect();
+		PreparedStatement pS;
+		ResultSet rS;
+		int delFromMessage, delFromAllowed;
+		Message ms;
+		try {
+			String delete = "delete from message where message_id=?";
+			pS = (PreparedStatement) con.prepareStatement(delete);
+			pS.setString(1, message_id);
+			delFromMessage = pS.executeUpdate();
+
+			delete = "delete from allowed_messages where message_id=?";
+			pS = (PreparedStatement) con.prepareStatement(delete);
+			pS.setString(1, message_id);
+			delFromAllowed = pS.executeUpdate();
+			pS.executeUpdate();
+
+			System.out.println("Deleted message with id: "+message_id+" /tDeleted from message: "+ delFromMessage+
+					"/tDeleted from alleowed: "+ delFromAllowed);
+			con.close();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
 }
