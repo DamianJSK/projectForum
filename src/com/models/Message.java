@@ -16,6 +16,13 @@ public class Message implements Serializable{
 		super();
 	}
 	
+	
+	public Message(String text) {
+		super();
+		this.text=text;
+		this.created = new Date();
+	}
+	
 	public Message(String message_id, String text, String created) {
 		super();
 		this.message_id = Integer.parseInt(message_id);

@@ -6,6 +6,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.dao.DAOforum;
 
 /**
  * Servlet implementation class NewMessage
@@ -27,7 +30,16 @@ public class NewMessage extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		String text = request.getParameter("message");
+		DAOforum daoForum = DAOforum.getDAOforum();
+		HttpSession session = request.getSession();
+		int user_id = (Integer)session.getAttribute("user_id");
+		
+		if(daoForum.addMessage(text, user_id)){
+			response.sendRedirect("Forum");
+		}else{
+			response.sendRedirect("home.jsp");
+		}
 	}
 
 	/**

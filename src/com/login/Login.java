@@ -29,19 +29,19 @@ public class Login extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-
+		HttpSession session;
 		String uname = request.getParameter("uname");
 		String upass = request.getParameter("upass");
 		
 		DAOforum daoForum = DAOforum.getDAOforum();
-		
-		if(daoForum.authentication(uname, upass)){
-//		if(false){
-			HttpSession session = request.getSession();
+		int user_id = daoForum.authentication(uname, upass);
+		if(user_id != 0){
+			session = request.getSession();
 			session.setAttribute("username", uname);
+			session.setAttribute("user_id", user_id);
 			response.sendRedirect("home.jsp");
 		}else{
-			HttpSession session = request.getSession();
+			session = request.getSession();
 			session.setAttribute("error", "Invalid login or password");
 			response.sendRedirect("login.jsp");
 		}
