@@ -34,6 +34,11 @@
 			</tr>
 			<% } %>
 		</tbody>
+
 	</table>
+	<form action="newmessage.jsp">
+		<input type="submit" value="Dodaj wiadomosc">
+	</form>
+
 </body>
 </html>
