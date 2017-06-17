@@ -31,12 +31,23 @@ public class Login extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		HttpSession session;
+		HttpSession session = request.getSession();;
+		UserDB logged_user = null;
 		String uname = request.getParameter("uname");
 		String upass = request.getParameter("upass");
 		
 		DAOforum daoForum = DAOforum.getDAOforum();
-		UserDB logged_user = daoForum.authentication(uname, upass);
+		String option = daoForum.authentication(uname, upass);
+		if(option == DAOforum.CORRECTLY_LOGGED){
+		logged_user = daoForum.refreshedLoggedUserByName(uname);
+		}else if(option == DAOforum.BLOCKED){
+			session.setAttribute("error", "User is blocked");
+			response.sendRedirect("login.jsp");
+		}else{
+			session.setAttribute("error", "Invalid login or password");
+			response.sendRedirect("login.jsp");
+		}
+		
 		if(logged_user != null){
 			session = request.getSession();
 			session.setAttribute("logged_user", logged_user);
@@ -45,9 +56,8 @@ public class Login extends HttpServlet {
 			session.setAttribute("last_login", new Date());
 			response.sendRedirect("home.jsp");
 		}else{
-			session = request.getSession();
-			session.setAttribute("error", "Invalid login or password");
-			response.sendRedirect("login.jsp");
+//			session.setAttribute("error", "Invalid login or password");
+//			response.sendRedirect("login.jsp");
 		}
 	}
 

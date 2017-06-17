@@ -35,6 +35,7 @@ public class Account extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("Served at: "+request.getContextPath());
 		String max_attempts = request.getParameter("max_attempts");
+		String block_time = request.getParameter("block_time");
 		
 		HttpSession session = request.getSession();
 		int user_id = (Integer)session.getAttribute("user_id");
@@ -42,7 +43,7 @@ public class Account extends HttpServlet {
 		DAOforum daoForum = DAOforum.getDAOforum();
 		
 		
-		if(daoForum.setMaxAttempts(user_id, max_attempts)){
+		if(daoForum.setMaxAttempts(user_id, max_attempts, block_time)){
 			UserDB logged_user = daoForum.refreshedLoggedUser(Integer.toString(user_id));
 			session.setAttribute("logged_user", logged_user);
 			session.setAttribute("username", logged_user.getUser_name());

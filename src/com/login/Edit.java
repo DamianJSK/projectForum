@@ -57,7 +57,5 @@ public class Edit extends HttpServlet {
 		}else{
 			response.sendRedirect("home.jsp");
 		}
-
 	}
-
 }

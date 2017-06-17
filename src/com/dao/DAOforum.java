@@ -14,6 +14,10 @@ import com.mysql.jdbc.Statement;
 
 public class DAOforum {
 
+	public static final String BLOCKED = "blocked";
+	public static final String WRONG_DATA = "wrong_data";
+	public static final String CORRECTLY_LOGGED = "correctly_logged";
+	
 	private static final DAOforum DAOFORUM = init();
 	Connection con = null;
 
@@ -41,7 +45,7 @@ public class DAOforum {
 
 	}
 
-	public UserDB authentication(String uName, String uPass) {
+	public String authentication(String uName, String uPass) {
 		connect();
 		PreparedStatement pS;
 		ResultSet rS;
@@ -53,18 +57,19 @@ public class DAOforum {
 			pS.setString(2, uPass);
 			rS = pS.executeQuery();
 			// jezeli login i haslo sie zgadzaja
-			if (rS.next()) {
+			if (rS.next() && refreshedLoggedUserByName(uName).getBlocked()==0) {
 
 				user = refreshedLoggedUserByName(uName);
 				System.out.println("Correctly logged user " + user.getUser_name());
 				con.close();
-				return user;
+				return CORRECTLY_LOGGED;
 
 				// jezeli nie zgadza sie haslo
 			} else {
 				UserDB checkedUser = refreshedLoggedUserByName(uName);
 				// jezeli nie przekroczono maksymalnej liczby blednych hasel
-				if (checkedUser != null && checkedUser.getUsedLoginAttempts() < checkedUser.getMaxLoginAttempts()) {
+				if (checkedUser != null && 
+						checkedUser.getUsedLoginAttempts() < checkedUser.getMaxLoginAttempts()) {
 					String update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
 							+ "last_invalid_login=? WHERE user_name=?";
 					pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
@@ -72,20 +77,46 @@ public class DAOforum {
 					pS.setString(2, uName);
 					pS.executeUpdate();
 					System.out.println("Invalid attempt, login_attempts increased");
+					con.close();
+					return WRONG_DATA;
+					
 					// jezeli osiagnieto maksymalna liczbe nieudanych logowan
 				} else if (checkedUser != null) {
-					String last_invalid_login = "Select last_invalid_login from usersdb WHERE user_name=?";
+					String last_invalid_login = "Select last_invalid_login, block_time from usersdb WHERE user_name=?";
 					pS = (PreparedStatement) con.prepareStatement(last_invalid_login);
 					pS.setString(1, uName);
 					rS = pS.executeQuery();
+					while (rS.next()) {
+						checkedUser.setLastInvalidLoginDateFromString(rS.getString("last_invalid_login"));
+					}
 					System.out.println("Overload invalid attempts");
+					int timeFromLastInvalidLogin = (new Date()).getSeconds()-(checkedUser.getLastInvalidLoginDate()).getSeconds();
+					System.out.println("Time from last invalid login  "+timeFromLastInvalidLogin+
+							" / time to unblock: "+(checkedUser.getBlock_time()-timeFromLastInvalidLogin));
+					//jezeli czas od ostatniego logowania jest wiekszy niz minimalny
+					if(timeFromLastInvalidLogin>checkedUser.getBlock_time()){
+						System.out.println("User unblocked, time after block ends: "+timeFromLastInvalidLogin);
+						String update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=0, blocked=0 WHERE user_name=?";
+						pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
+						pS.setString(1, uName);
+						pS.executeUpdate();
+						con.close();
+						return authentication(uName, uPass);
+					}
+					//zablokuj logowanie jezeli nie minal czas blokady
+					String update_blocked_state = "UPDATE usersdb SET blocked=1 WHERE user_name=?";
+					pS = (PreparedStatement) con.prepareStatement(update_blocked_state);
+					pS.setString(1, uName);
+					pS.executeUpdate();
+					con.close();
+					return BLOCKED;
+					
 				} else {
+					
 					System.out.println("Choosen user not exist");
+					con.close();
+					return WRONG_DATA;
 				}
-
-				con.close();
-
-				return null;
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -227,18 +258,19 @@ public class DAOforum {
 		return true;
 	}
 
-	public boolean setMaxAttempts(int user_id, String max_attempts) {
+	public boolean setMaxAttempts(int user_id, String max_attempts, String block_time) {
 		connect();
 		PreparedStatement pS;
 
 		try {
-			String update = "UPDATE usersdb SET max_login_attempts=? WHERE user_id=?";
+			String update = "UPDATE usersdb SET max_login_attempts=?, block_time=? WHERE user_id=?";
 			pS = (PreparedStatement) con.prepareStatement(update);
 			pS.setString(1, max_attempts);
-			pS.setString(2, Integer.toString(user_id));
+			pS.setString(2, block_time);
+			pS.setString(3, Integer.toString(user_id));
 			pS.executeUpdate();
 
-			System.out.println("Updated attempts to: " + max_attempts + " \tfor user with id: " + user_id);
+			System.out.println("Updated attempts to: " + max_attempts + " \tand blocking time: "+block_time+"for user with id: " + user_id);
 			con.close();
 
 		} catch (SQLException e) {
@@ -266,9 +298,11 @@ public class DAOforum {
 				String last_invalid_login = rS.getString("last_invalid_login");
 				String max_login_attempts = rS.getString("max_login_attempts");
 				String used_login_attempts = rS.getString("used_login_attempts");
-
+				String block_time = rS.getString("block_time");
+				String blocked = rS.getString("blocked");
+				
 				user = new UserDB(user_id, user_name, permissions_id, last_login, last_invalid_login,
-						max_login_attempts, used_login_attempts);
+						max_login_attempts, used_login_attempts, block_time, blocked);
 				return user;
 			} else {
 				return null;
@@ -299,9 +333,11 @@ public class DAOforum {
 				String last_invalid_login = rS.getString("last_invalid_login");
 				String max_login_attempts = rS.getString("max_login_attempts");
 				String used_login_attempts = rS.getString("used_login_attempts");
+				String block_time = rS.getString("block_time");
+				String blocked = rS.getString("blocked");
 
 				user = new UserDB(user_id, user_name, permissions_id, last_login, last_invalid_login,
-						max_login_attempts, used_login_attempts);
+						max_login_attempts, used_login_attempts, block_time, blocked);
 				return user;
 			} else {
 				return null;

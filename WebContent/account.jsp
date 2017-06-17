@@ -25,7 +25,10 @@
 	Invalid login attempts: <%=user.getUsedLoginAttempts()%><br>
 	<form action="Account">
 		Max login attempts: <input type="text" name="max_attempts"
-			value="<%=user.getMaxLoginAttempts()%>"><br> <input
+			value="<%=user.getMaxLoginAttempts()%>"><br> 
+		Block time in sec: <input type="text" name="block_time"
+			value="<%=user.getBlock_time()%>"><br>
+			<input
 			type="submit" value="Zapisz">
 	</form>
 	<br>
