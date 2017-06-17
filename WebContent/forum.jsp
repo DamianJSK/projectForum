@@ -10,7 +10,7 @@
 <body>
 	<%
 		if (session.getAttribute("logged_user") == null) {
-			request.getRequestDispatcher("login.jsp").forward(request, response);
+			response.sendRedirect("login.jsp");
 		}
 	%>
 	This is forum

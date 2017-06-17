@@ -10,24 +10,31 @@ public class UserDB {
 	private String user_name;
 	private int persmissions_id;
 	private Date lastLoginDate;
-    private SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
+	private Date lastInvalidLoginDate;
+	private int maxLoginAttempts;
+	private int usedLoginAttempts;
+    public static SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
 	
 	public UserDB() {
 		super();
 	}
 
 
-	public UserDB(String user_id, String user_name, String persmissions_id, String date) {
+	public UserDB(String user_id, String user_name, String persmissions_id, String dateValidLogin, String dateInvalidLogin, 
+			String maxLoginAttempts, String usedLoginAttempts) {
 		super();
 		this.user_id = Integer.parseInt(user_id);
 		this.user_name = user_name;
 		this.persmissions_id =  Integer.parseInt(persmissions_id);
 	    try {
-			this.lastLoginDate = ft.parse(date);
+			this.lastLoginDate = ft.parse(dateValidLogin);
+			this.lastInvalidLoginDate = ft.parse(dateInvalidLogin);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	    this.maxLoginAttempts = Integer.parseInt(maxLoginAttempts);
+	    this.usedLoginAttempts = Integer.parseInt(usedLoginAttempts);
 
 	}
 
@@ -69,6 +76,36 @@ public class UserDB {
 
 	public void setLastLoginDate(Date date) {
 		this.lastLoginDate = date;
+	}
+
+
+	public Date getLastInvalidLoginDate() {
+		return lastInvalidLoginDate;
+	}
+
+
+	public void setLastInvalidLoginDate(Date lastInvalidLoginDate) {
+		this.lastInvalidLoginDate = lastInvalidLoginDate;
+	}
+
+
+	public int getMaxLoginAttempts() {
+		return maxLoginAttempts;
+	}
+
+
+	public void setMaxLoginAttempts(int maxLoginAttempts) {
+		this.maxLoginAttempts = maxLoginAttempts;
+	}
+
+
+	public int getUsedLoginAttempts() {
+		return usedLoginAttempts;
+	}
+
+
+	public void setUsedLoginAttempts(int usedLoginAttempts) {
+		this.usedLoginAttempts = usedLoginAttempts;
 	}
 	
 	

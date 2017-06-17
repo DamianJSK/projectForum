@@ -1,7 +1,7 @@
 package com.login;
 
 import java.io.IOException;
-import java.util.Date;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,17 +11,20 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.dao.DAOforum;
+import com.models.Message;
 import com.models.UserDB;
 
-
-@WebServlet("/Login")
-public class Login extends HttpServlet {
+/**
+ * Servlet implementation class Account
+ */
+@WebServlet("/Account")
+public class Account extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public Login() {
+    public Account() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -30,24 +33,23 @@ public class Login extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-		HttpSession session;
-		String uname = request.getParameter("uname");
-		String upass = request.getParameter("upass");
+		System.out.println("Served at: "+request.getContextPath());
+		String max_attempts = request.getParameter("max_attempts");
+		
+		HttpSession session = request.getSession();
+		int user_id = (Integer)session.getAttribute("user_id");
 		
 		DAOforum daoForum = DAOforum.getDAOforum();
-		UserDB logged_user = daoForum.authentication(uname, upass);
-		if(logged_user != null){
-			session = request.getSession();
+		
+		
+		if(daoForum.setMaxAttempts(user_id, max_attempts)){
+			UserDB logged_user = daoForum.refreshedLoggedUser(Integer.toString(user_id));
 			session.setAttribute("logged_user", logged_user);
 			session.setAttribute("username", logged_user.getUser_name());
 			session.setAttribute("user_id", logged_user.getUser_id());
-			session.setAttribute("last_login", new Date());
-			response.sendRedirect("home.jsp");
+			response.sendRedirect("account.jsp");
 		}else{
-			session = request.getSession();
-			session.setAttribute("error", "Invalid login or password");
-			response.sendRedirect("login.jsp");
+			response.sendRedirect("home.jsp");
 		}
 	}
 
