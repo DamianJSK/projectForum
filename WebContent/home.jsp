@@ -17,10 +17,10 @@
 
 	<form action="Forum">
 		<a href="Forum">Go to FORUM</a>
-	</form>
+	</form><br>
 	<form action="account.jsp">
 		<input type="submit" value="Account">
-	</form>
+	</form><br>
 	<form action="Logout">
 		<input type="submit" value="Logout">
 	</form>

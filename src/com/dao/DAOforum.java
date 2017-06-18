@@ -125,6 +125,36 @@ public class DAOforum {
 		return null;
 	}
 
+	public boolean password_check(String uName, String uPass) {
+		connect();
+		PreparedStatement pS;
+		ResultSet rS;
+		UserDB user;
+		try {
+			pS = (PreparedStatement) con
+					.prepareStatement("select * from usersdb where user_name=? and password_hash=?");
+			pS.setString(1, uName);
+			pS.setString(2, uPass);
+			rS = pS.executeQuery();
+			// jezeli login i haslo sie zgadzaja
+			if (rS.next()) {
+
+				System.out.println("Old password correct for user " + uName);
+				con.close();
+				return true;
+
+				// jezeli nie zgadza sie haslo
+			} else {			
+					con.close();
+					return false;		
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	public boolean logout(UserDB user, Date last_login) {
 		connect();
 		PreparedStatement pS;
@@ -270,7 +300,7 @@ public class DAOforum {
 			pS.setString(3, Integer.toString(user_id));
 			pS.executeUpdate();
 
-			System.out.println("Updated attempts to: " + max_attempts + " \tand blocking time: "+block_time+"for user with id: " + user_id);
+			System.out.println("Updated attempts to: " + max_attempts + " \tand blocking time: "+block_time+" for user with id: " + user_id);
 			con.close();
 
 		} catch (SQLException e) {
@@ -348,6 +378,30 @@ public class DAOforum {
 			return null;
 		}
 
+	}
+
+
+
+	public boolean updatePass(String user_name, String new_pass) {
+			connect();
+			PreparedStatement pS;
+			int updatedPass;
+			try {
+				String update = "UPDATE usersdb SET password_hash=? WHERE user_name=?";
+				pS = (PreparedStatement) con.prepareStatement(update);
+				pS.setString(1, new_pass);
+				pS.setString(2, user_name);
+				updatedPass = pS.executeUpdate();
+
+				System.out.println("Updated password for user with name: " + user_name+"\t updated rows: "+updatedPass);
+				con.close();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return false;
+			}
+			return true;
+		
 	}
 
 }

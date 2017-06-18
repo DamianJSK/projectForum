@@ -24,9 +24,9 @@
 	<form action="Edit" method="POST">
 		<input type="hidden" name="messageId" value="<%=message_id%>" />
 		<textarea type="input" name="message" rows="10" cols="25"
-			maxlength="200"><%=text%></textarea>
+			maxlength="200"><%=text%></textarea><br>
 		<br> <input type="submit" value="Zapisz">
-	</form>
+	</form><br>
 	<form action="Forum">
 		<input type="submit" value="Powrót">
 	</form>

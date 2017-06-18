@@ -32,7 +32,9 @@
 			type="submit" value="Zapisz">
 	</form>
 	<br>
-
+	<form action="passwordchange.jsp">
+		<input type="submit" value="Change password">
+	</form><br>
 	<form action="home.jsp">
 		<input type="submit" value="Back">
 	</form>

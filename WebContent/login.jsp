@@ -5,8 +5,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Insert title here</title>
+<link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
+	<div id="container">
 	<p1>Welcome in this Forum</p1>
 	<form action="Login">
 		<pre>
@@ -25,5 +27,8 @@
 		<input type="submit" value="login"><br>
 	</pre>
 	</form>
+	
+			<div id="footer">Forum project by DJ & GF & DK &copy;</div>	
+	</div>
 </body>
 </html>
