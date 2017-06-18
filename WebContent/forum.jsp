@@ -5,45 +5,61 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Insert title here</title>
+<title>Forum</title>
+<link
+	href='https://fonts.googleapis.com/css?family=Lato:400,900&subset=latin,latin-ext'
+	rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-	<%
-		if (session.getAttribute("logged_user") == null) {
-			response.sendRedirect("login.jsp");
-		}
-	%>
-	This is forum
-	<br>
-	<a href="home.jsp">Back Home</a>
 
-	<table border="1">
-		<tbody>
-			<tr>
-				<td>Message ID</td>
-				<td>Message text</td>
-				<td>Created/Edited</td>
-				<td>Options</td>
-			</tr>
+	<div id="container">
+		<div id="logo">Forum</div>
+		<div id="content">
 			<%
-			ArrayList<Message> messages = (ArrayList<Message>)session.getAttribute("messageList");
-			for(Message ms : messages){  %>
-			<tr>
-				<td><%= Integer.toString(ms.getMessage_id())  %></td>
-				<td><%=ms.getText()%></td>
-				<td><%= ms.getCreatedFormated()%> / <%= ms.getEditedFormated()%></td>
-				<td><%if(ms.getCreated_by()==((UserDB)session.getAttribute("logged_user")).getUser_id()){ 
-				out.print("<a href="+"./edit.jsp?messageId="+ms.getMessage_id()+">Edit</a> / <a href="+
-				"./Delete?messageId="+ms.getMessage_id()+">Delete</a>");}%></td>
-			</tr>
-			<% } %>
-		</tbody>
+				if (session.getAttribute("logged_user") == null) {
+					response.sendRedirect("login.jsp");
+				}
+			%>
+			<span class="bigtitle">You are logged in as ${username} </span> <br>
+			<a href="home.jsp">Back Home</a>
 
-	</table><br>
-	<form action="newmessage.jsp">
-		<input type="submit" value="Dodaj wiadomosc">
-	</form>
-
+			<table border="1">
+				<tbody>
+					<tr>
+						<td>Message ID</td>
+						<td><div style="width: 380px">Message text</div></td>
+						<td>Created || Edited</td>
+						<td>Options</td>
+					</tr>
+					<%
+						ArrayList<Message> messages = (ArrayList<Message>) session.getAttribute("messageList");
+						for (Message ms : messages) {
+					%>
+					<tr>
+						<td><%=Integer.toString(ms.getMessage_id())%></td>
+						<td><%=ms.getText()%></td>
+						<td><%=ms.getCreatedFormated()%>||<%=ms.getEditedFormated()%></td>
+						<td>
+							<%
+								if (ms.getCreated_by() == ((UserDB) session.getAttribute("logged_user")).getUser_id()) {
+										out.print("<a href=" + "./edit.jsp?messageId=" + ms.getMessage_id() + ">Edit</a>  <a href="
+												+ "./Delete?messageId=" + ms.getMessage_id() + ">Delete</a>");
+									}
+							%>
+						</td>
+					</tr>
+					<%
+						}
+					%>
+				</tbody>
+			</table>
+			<br>
+			<form action="newmessage.jsp">
+				<input class="btn" type="submit" value="Dodaj wiadomosc">
+			</form>
+		</div>
+		<div id="footer">Forum project by DJ & GF & DK &copy;</div>
+	</div>
 </body>
 </html>

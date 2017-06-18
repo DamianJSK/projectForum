@@ -5,31 +5,42 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Edycja</title>
+<title>Edit message</title>
+<link
+	href='https://fonts.googleapis.com/css?family=Lato:400,900&subset=latin,latin-ext'
+	rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-	<%
-		if (session.getAttribute("logged_user") == null) {
-			response.sendRedirect("login.jsp");
-		}
-	%>
-	<%!String text;%>
-	<%
-		HashMap<Integer, Message> map = (HashMap<Integer, Message>) session.getAttribute("mapMessages");
-		int message_id = Integer.parseInt(request.getParameter("messageId"));
-		Message message = map.get(message_id);
-		text = message.getText();
-	%>
+	<div id="container">
+		<div id="logo">Forum</div>
+		<div id="content">
+			<span class="bigtitle">Edit message of user ${username} </span> <br>
+			<%
+				if (session.getAttribute("logged_user") == null) {
+					response.sendRedirect("login.jsp");
+				}
+			%>
+			<%!String text;%>
+			<%
+				HashMap<Integer, Message> map = (HashMap<Integer, Message>) session.getAttribute("mapMessages");
+				int message_id = Integer.parseInt(request.getParameter("messageId"));
+				Message message = map.get(message_id);
+				text = message.getText();
+			%>
 
-	<form action="Edit" method="POST">
-		<input type="hidden" name="messageId" value="<%=message_id%>" />
-		<textarea type="input" name="message" rows="10" cols="25"
-			maxlength="200"><%=text%></textarea><br>
-		<br> <input type="submit" value="Zapisz">
-	</form><br>
-	<form action="Forum">
-		<input type="submit" value="Powrót">
-	</form>
-
+			<form action="Edit" method="POST">
+				<input type="hidden" name="messageId" value="<%=message_id%>" />
+				<textarea type="input" name="message" rows="10" cols="25"
+					maxlength="200"><%=text%></textarea>
+				<br> <br> <input class="btn" type="submit" value="Zapisz">
+			</form>
+			<br>
+			<form action="Forum">
+				<input class="btn" type="submit" value="Powrót">
+			</form>
+		</div>
+		<div id="footer">Forum project by DJ & GF & DK &copy;</div>
+	</div>
 </body>
 </html>

@@ -4,31 +4,33 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Insert title here</title>
+<title>Forum login</title>
+<link
+	href='https://fonts.googleapis.com/css?family=Lato:400,900&subset=latin,latin-ext'
+	rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
 	<div id="container">
-	<p1>Welcome in this Forum</p1>
-	<form action="Login">
-		<pre>
-		Enter user name: <input type="text" name="uname"
-				placeholder="enter name"><br>
-		Enter user password: <input type="text" name="upass"
-				placeholder="enter password"><br>
-		<font color="red">
-		<%
+		<div id="logo">Forum</div>
+
+		<div id="content">
+			<form action="Login">
+
+				Enter user name: <input type="text" name="uname"
+					placeholder="enter name"></br>
+				</br> Enter user password: <input type="text" name="upass"
+					placeholder="enter password"></br>
+				</br> <font color="red"> <%
 			if (session.getAttribute("error") != null) {
 				out.println(session.getAttribute("error"));
 				session.removeAttribute("error");
 			}
-		%>
-		</font>
-		<input type="submit" value="login"><br>
-	</pre>
-	</form>
-	
-			<div id="footer">Forum project by DJ & GF & DK &copy;</div>	
+		%><br>
+				</font> <input class="btn" type="submit" value="login"><br>
+			</form>
+		</div>
+		<div id="footer">Forum project by DJ & GF & DK &copy;</div>
 	</div>
 </body>
 </html>

@@ -4,27 +4,38 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Insert title here</title>
+<title>Forum Home</title>
+<link
+	href='https://fonts.googleapis.com/css?family=Lato:400,900&subset=latin,latin-ext'
+	rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-	<%
-		if (session.getAttribute("logged_user") == null) {
-			response.sendRedirect("login.jsp");
-		} 
-	%>
-	WELCOME OUTLANDER! You are ${username}
-	<br>
+	<div id="container">
+		<div id="logo">Forum</div>
+		<div id="content">
+			<%
+				if (session.getAttribute("logged_user") == null) {
+					response.sendRedirect("login.jsp");
+				}
+			%>
+			<span class="bigtitle">Welcome in our forum! You are logged in
+				as ${username} </span> <br>
+			<br>
 
-	<form action="Forum">
-		<a href="Forum">Go to FORUM</a>
-	</form><br>
-	<form action="account.jsp">
-		<input type="submit" value="Account">
-	</form><br>
-	<form action="Logout">
-		<input type="submit" value="Logout">
-	</form>
-
-
+			<form action="Forum">
+				<a href="Forum">Go to FORUM</a>
+			</form>
+			<br>
+			<form action="account.jsp">
+				<input class="btn" type="submit" value="Account">
+			</form>
+			<br>
+			<form action="Logout">
+				<input class="btn" type="submit" value="Logout">
+			</form>
+		</div>
+		<div id="footer">Forum project by DJ & GF & DK &copy;</div>
+	</div>
 </body>
 </html>
