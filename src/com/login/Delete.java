@@ -19,41 +19,48 @@ import com.models.Message;
 @WebServlet("/Delete")
 public class Delete extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public Delete() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("Served at: "+request.getContextPath());
-		String message_id = request.getParameter("messageId");
-		DAOforum daoForum = DAOforum.getDAOforum();
+	public Delete() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		System.out.println("Served at: " + request.getContextPath());
 		HttpSession session = request.getSession();
-		int created_by = ((HashMap<Integer, Message>)session.getAttribute("mapMessages")).get(Integer.parseInt(message_id)).getCreated_by();
-		int user_id = (Integer)session.getAttribute("user_id");
+		if (session.getAttribute("logged_user") == null) {
+			response.sendRedirect("login.jsp");
+		} else {
+			String message_id = request.getParameter("messageId");
+			DAOforum daoForum = DAOforum.getDAOforum();
+			int created_by = ((HashMap<Integer, Message>) session.getAttribute("mapMessages"))
+					.get(Integer.parseInt(message_id)).getCreated_by();
+			int user_id = (Integer) session.getAttribute("user_id");
 
-		
-		if(created_by!=user_id){
-			response.sendRedirect("Forum");
-		}else	if(daoForum.deleteMessage(message_id)){
-			response.sendRedirect("Forum");
-		}else{
-			response.sendRedirect("home.jsp");
+			if (created_by != user_id) {
+				response.sendRedirect("Forum");
+			} else if (daoForum.deleteMessage(message_id)) {
+				response.sendRedirect("Forum");
+			} else {
+				response.sendRedirect("home.jsp");
+			}
 		}
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}

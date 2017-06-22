@@ -11,6 +11,11 @@
 <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
+			<%
+				if (session.getAttribute("logged_user") != null) {
+					response.sendRedirect("home.jsp");
+				}else{
+			%>
 	<div id="container">
 		<div id="logo">Forum</div>
 
@@ -32,5 +37,6 @@
 		</div>
 		<div id="footer">Forum project by DJ & GF & DK &copy;</div>
 	</div>
+	<%} %>
 </body>
 </html>

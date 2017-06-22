@@ -12,15 +12,15 @@
 <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-
+	<%
+				if (session.getAttribute("logged_user") == null) {
+					response.sendRedirect("login.jsp");
+				}else{
+			%>
 	<div id="container">
 		<div id="logo">Forum</div>
 		<div id="content">
-			<%
-				if (session.getAttribute("logged_user") == null) {
-					response.sendRedirect("login.jsp");
-				}
-			%>
+
 			<span class="bigtitle">You are logged in as ${username} </span> <br>
 			<a href="home.jsp">Back Home</a>
 
@@ -29,17 +29,20 @@
 					<tr>
 						<td>Message ID</td>
 						<td><div style="width: 380px">Message text</div></td>
-						<td>Created || Edited</td>
+						<td>Created by</td>
+						<td><div style="maxwidth: 30px">Created || Edited</div></td>
 						<td>Options</td>
 					</tr>
 					<%
+						HashMap<Integer, UserDB> usersMap = (HashMap<Integer, UserDB>) session.getAttribute("usersMap");
 						ArrayList<Message> messages = (ArrayList<Message>) session.getAttribute("messageList");
 						for (Message ms : messages) {
 					%>
 					<tr>
 						<td><%=Integer.toString(ms.getMessage_id())%></td>
 						<td><%=ms.getText()%></td>
-						<td><%=ms.getCreatedFormated()%>||<%=ms.getEditedFormated()%></td>
+						<td><%=usersMap.get(ms.getCreated_by()).getUser_name() %>
+						<td><%=ms.getCreatedFormated()%><br><%=ms.getEditedFormated()%></td>
 						<td>
 							<%
 								if (ms.getCreated_by() == ((UserDB) session.getAttribute("logged_user")).getUser_id()) {
@@ -61,5 +64,6 @@
 		</div>
 		<div id="footer">Forum project by DJ & GF & DK &copy;</div>
 	</div>
+	<%} %>
 </body>
 </html>

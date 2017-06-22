@@ -12,16 +12,16 @@
 <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
+			<%
+				if (session.getAttribute("logged_user") == null) {
+					response.sendRedirect("login.jsp");
+				}else{
+				UserDB user = (UserDB) session.getAttribute("logged_user");
+			%>
 	<div id="container">
 		<div id="logo">Forum</div>
 		<div id="content">
 			<span class="bigtitle">Info about account user ${username} </span> <br>
-			<%
-				if (session.getAttribute("logged_user") == null) {
-					response.sendRedirect("login.jsp");
-				}
-				UserDB user = (UserDB) session.getAttribute("logged_user");
-			%>
 			User name:
 			<%=user.getUser_name()%><br> User ID:
 			<%=user.getUser_id()%><br> Last login:
@@ -33,7 +33,7 @@
 					value="<%=user.getMaxLoginAttempts()%>"><br> Block
 				time in sec: <input type="text" name="block_time"
 					value="<%=user.getBlock_time()%>"><br> <input
-					class="btn" type="submit" value="Zapisz">
+					class="btn" type="submit" value="Save">
 			</form>
 			<br>
 			<form action="passwordchange.jsp">
@@ -46,5 +46,6 @@
 		</div>
 		<div id="footer">Forum project by DJ & GF & DK &copy;</div>
 	</div>
+	<%} %>
 </body>
 </html>

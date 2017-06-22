@@ -16,33 +16,41 @@ import com.models.UserDB;
 @WebServlet("/Logout")
 public class Logout extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public Logout() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession();
-		DAOforum daoForum = DAOforum.getDAOforum();
-		UserDB user = (UserDB) session.getAttribute("logged_user");
-		Date last_login = (Date) session.getAttribute("last_login");
-		daoForum.logout(user, last_login);
-		session.removeAttribute("logged_user");
-		session.invalidate();
-		response.sendRedirect("login.jsp");
+	public Logout() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		HttpSession session = request.getSession();
+		if (session.getAttribute("logged_user") == null) {
+			response.sendRedirect("login.jsp");
+		} else {
+			DAOforum daoForum = DAOforum.getDAOforum();
+			UserDB user = (UserDB) session.getAttribute("logged_user");
+			Date last_login = (Date) session.getAttribute("last_login");
+			daoForum.logout(user, last_login);
+			session.removeAttribute("logged_user");
+			session.invalidate();
+			response.sendRedirect("login.jsp");
+		}
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}

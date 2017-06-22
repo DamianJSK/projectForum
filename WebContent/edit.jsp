@@ -12,15 +12,15 @@
 <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
+	<%
+				if (session.getAttribute("logged_user") == null) {
+					response.sendRedirect("login.jsp");
+				}else{
+			%>
 	<div id="container">
 		<div id="logo">Forum</div>
 		<div id="content">
 			<span class="bigtitle">Edit message of user ${username} </span> <br>
-			<%
-				if (session.getAttribute("logged_user") == null) {
-					response.sendRedirect("login.jsp");
-				}
-			%>
 			<%!String text;%>
 			<%
 				HashMap<Integer, Message> map = (HashMap<Integer, Message>) session.getAttribute("mapMessages");
@@ -29,18 +29,19 @@
 				text = message.getText();
 			%>
 
-			<form action="Edit" method="POST">
+			<form action="Edit" method="GET">
 				<input type="hidden" name="messageId" value="<%=message_id%>" />
 				<textarea type="input" name="message" rows="10" cols="25"
 					maxlength="200"><%=text%></textarea>
-				<br> <br> <input class="btn" type="submit" value="Zapisz">
+				<br> <br> <input class="btn" type="submit" value="Save">
 			</form>
 			<br>
 			<form action="Forum">
-				<input class="btn" type="submit" value="Powrót">
+				<input class="btn" type="submit" value="Back">
 			</form>
 		</div>
 		<div id="footer">Forum project by DJ & GF & DK &copy;</div>
 	</div>
+	<%} %>
 </body>
 </html>

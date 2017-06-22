@@ -11,15 +11,15 @@
 <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
+	<%
+				if (session.getAttribute("logged_user") == null) {
+					response.sendRedirect("login.jsp");
+				}else{
+			%>
 	<div id="container">
 		<div id="logo">Forum</div>
 		<div id="content">
 			<span class="bigtitle">Info about account user ${username} </span> <br>
-			<%
-				if (session.getAttribute("logged_user") == null) {
-					response.sendRedirect("login.jsp");
-				}
-			%>
 			<form action="ChangePassword" method="get">
 				Old password: <input type="text" name="old_pass"
 					placeholder="Enter old password" maxlength="16" minlength="8"><br>
@@ -42,5 +42,6 @@
 		</div>
 		<div id="footer">Forum project by DJ & GF & DK &copy;</div>
 	</div>
+	<%} %>
 </body>
 </html>

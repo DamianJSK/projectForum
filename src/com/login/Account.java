@@ -20,44 +20,52 @@ import com.models.UserDB;
 @WebServlet("/Account")
 public class Account extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public Account() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("Served at: "+request.getContextPath());
-		String max_attempts = request.getParameter("max_attempts");
-		String block_time = request.getParameter("block_time");
-		
+	public Account() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
 		HttpSession session = request.getSession();
-		int user_id = (Integer)session.getAttribute("user_id");
-		
-		DAOforum daoForum = DAOforum.getDAOforum();
-		
-		
-		if(daoForum.setMaxAttempts(user_id, max_attempts, block_time)){
-			UserDB logged_user = daoForum.refreshedLoggedUser(Integer.toString(user_id));
-			session.setAttribute("logged_user", logged_user);
-			session.setAttribute("username", logged_user.getUser_name());
-			session.setAttribute("user_id", logged_user.getUser_id());
-			response.sendRedirect("account.jsp");
-		}else{
-			response.sendRedirect("home.jsp");
+		if (session.getAttribute("logged_user") == null) {
+			response.sendRedirect("login.jsp");
+		} else {
+			System.out.println("Served at: " + request.getContextPath());
+			String max_attempts = request.getParameter("max_attempts");
+			String block_time = request.getParameter("block_time");
+
+			int user_id = (Integer) session.getAttribute("user_id");
+
+			DAOforum daoForum = DAOforum.getDAOforum();
+
+			if (daoForum.setMaxAttempts(user_id, max_attempts, block_time)) {
+				UserDB logged_user = daoForum.refreshedLoggedUser(Integer.toString(user_id));
+				session.setAttribute("logged_user", logged_user);
+				session.setAttribute("username", logged_user.getUser_name());
+				session.setAttribute("user_id", logged_user.getUser_id());
+				response.sendRedirect("account.jsp");
+			} else {
+				response.sendRedirect("home.jsp");
+			}
 		}
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
