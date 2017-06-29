@@ -67,6 +67,7 @@ public class DAOforum {
 
 				// jezeli nie zgadza sie haslo
 			} else {
+				//zmiany w master dla git test
 				UserDB checkedUser = refreshedLoggedUserByName(uName);
 				// jezeli nie przekroczono maksymalnej liczby blednych hasel
 				if (checkedUser != null && checkedUser.getUsedLoginAttempts() < checkedUser.getMaxLoginAttempts()) {
