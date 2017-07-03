@@ -1,8 +1,11 @@
-/Account.class
-/ChangePassword.class
-/Delete.class
-/Edit.class
 /Forum.class
 /Login.class
 /Logout.class
 /NewMessage.class
+/RemovePermission.class
+/Account.class
+/AddPermission.class
+/ChangePassword.class
+/Delete.class
+/Edit.class
+/EditPermissions.class

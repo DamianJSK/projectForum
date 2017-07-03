@@ -13,18 +13,19 @@ import javax.servlet.http.HttpSession;
 
 import com.dao.DAOforum;
 import com.models.Message;
+import com.models.UserDB;
 
 /**
- * Servlet implementation class Edit
+ * Servlet implementation class RemovePermission
  */
-@WebServlet("/Edit")
-public class Edit extends HttpServlet {
+@WebServlet("/RemovePermission")
+public class RemovePermission extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public Edit() {
+    public RemovePermission() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -32,27 +33,31 @@ public class Edit extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
 		response.getWriter().append("Served at: ").append(request.getContextPath());
+		System.out.println("In add permission");
 		HttpSession session = request.getSession();
 		if (session.getAttribute("logged_user") == null) {
+			System.out.println("redirect to login.jsp");
 			response.sendRedirect("login.jsp");
-		}
-		String text = request.getParameter("message");
-		String message_id = request.getParameter("messageId");
-		
-		int created_by = ((HashMap<Integer, Message>)session.getAttribute("mapMessages")).get(Integer.parseInt(message_id)).getCreated_by();
-		int user_id = (Integer)session.getAttribute("user_id");
-		
-		DAOforum daoForum = DAOforum.getDAOforum();
-		ArrayList<Integer> editPrivilagesUserIds = daoForum.getEditPrivilagesForMessageByUserID(Integer.parseInt(message_id));
-		
-		if(created_by==user_id || (editPrivilagesUserIds.contains(user_id))){
-			daoForum.updateMessage(text, message_id);
-			response.sendRedirect("Forum");
-		}else {
-			response.sendRedirect("Forum");
+		} else {
+
+			int message_id = Integer.parseInt(request.getParameter("message_id"));
+
+			int created_by = ((HashMap<Integer, Message>) session.getAttribute("mapMessages")).get(message_id)
+					.getCreated_by();
+			int logged_user_id = (Integer) session.getAttribute("user_id");
+
+			if (logged_user_id == created_by) {
+				int remove_perm_user_id = Integer.parseInt(request.getParameter("remove_permissions"));
+				DAOforum daoForum = DAOforum.getDAOforum();
+				daoForum.removeEditPermissionsForUser(remove_perm_user_id, message_id);
+			}
+
+			response.sendRedirect("edit_permissions.jsp?messageId=" + message_id);
 		}
 	}
 
@@ -60,7 +65,8 @@ public class Edit extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("Served at: "+request.getContextPath());
-
+		// TODO Auto-generated method stub
+		doGet(request, response);
 	}
+
 }

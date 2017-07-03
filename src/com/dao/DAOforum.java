@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import com.models.Message;
 import com.models.UserDB;
@@ -43,7 +44,19 @@ public class DAOforum {
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
+	}
 
+	public Connection getConnection() {
+		Connection con = null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/login", "root", "");
+
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+
+		return con;
 	}
 
 	public String authentication(String uName, String uPass) {
@@ -67,25 +80,26 @@ public class DAOforum {
 
 				// jezeli nie zgadza sie haslo
 			} else {
-				//zmiany w master dla git test
+				// zmiany w master dla git test
 				UserDB checkedUser = refreshedLoggedUserByName(uName);
 				// jezeli nie przekroczono maksymalnej liczby blednych hasel
 				if (checkedUser != null && checkedUser.getUsedLoginAttempts() < checkedUser.getMaxLoginAttempts()) {
-					//gdy osiagnieta zosatnie maksymalna liczba nieudanych logowan, blokada
+					// gdy osiagnieta zosatnie maksymalna liczba nieudanych
+					// logowan, blokada
 					String update_used_login_attempts;
-					if(checkedUser.getMaxLoginAttempts()-checkedUser.getUsedLoginAttempts() == 1){
-					update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
+					if (checkedUser.getMaxLoginAttempts() - checkedUser.getUsedLoginAttempts() == 1) {
+						update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
 								+ "last_invalid_login=?, blocked=1 WHERE user_name=?";
-					}else{
-					update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
-							+ "last_invalid_login=? WHERE user_name=?";
+					} else {
+						update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
+								+ "last_invalid_login=? WHERE user_name=?";
 					}
 					pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
 					pS.setString(1, UserDB.ft.format(new Date()));
 					pS.setString(2, uName);
 					pS.executeUpdate();
 					System.out.println("Invalid attempt for user " + checkedUser.getUser_name()
-							+ ", login_attempts increased to: " + (checkedUser.getUsedLoginAttempts()+1)
+							+ ", login_attempts increased to: " + (checkedUser.getUsedLoginAttempts() + 1)
 							+ ", max attempts: " + checkedUser.getMaxLoginAttempts());
 					con.close();
 					return WRONG_DATA;
@@ -100,8 +114,8 @@ public class DAOforum {
 						checkedUser.setLastInvalidLoginDateFromString(rS.getString("last_invalid_login"));
 					}
 					System.out.println("Overload invalid attempts");
-					int timeFromLastInvalidLogin = (int)((new Date()).getTime()
-							- (checkedUser.getLastInvalidLoginDate()).getTime())/1000;
+					int timeFromLastInvalidLogin = (int) ((new Date()).getTime()
+							- (checkedUser.getLastInvalidLoginDate()).getTime()) / 1000;
 					System.out.println("Time from last invalid login  " + timeFromLastInvalidLogin
 							+ " / time to unblock: " + (checkedUser.getBlock_time() - timeFromLastInvalidLogin));
 					// jezeli czas od ostatniego logowania jest wiekszy niz
@@ -416,15 +430,11 @@ public class DAOforum {
 	}
 
 	public HashMap<Integer, UserDB> getAllUsers() {
-		connect();
 		HashMap<Integer, UserDB> usersMap = new HashMap<>();
 		UserDB user;
-		Statement st;
+		ResultSet rS = executeFetchQuery("select * from usersdb;");
 		try {
-			st = (Statement) con.createStatement();
 
-			ResultSet rS;
-			rS = st.executeQuery("select * from usersdb;");
 			while (rS.next()) {
 				String user_id = rS.getString("user_id");
 				String user_name = rS.getString("user_name");
@@ -448,6 +458,118 @@ public class DAOforum {
 		}
 
 		return usersMap;
+	}
+
+	public ArrayList<UserDB> getEditPrivilagesForMessage(int messageId) {
+		ArrayList<UserDB> listUserDB = new ArrayList<>();
+		ArrayList<Integer> idsUsersWithPrivilages = new ArrayList<>();
+		PreparedStatement pS;
+		ResultSet rS;
+		String selectPrivilages = "Select * from message_edit_perm where message_id=?";
+		try {
+			connect();
+			pS = (PreparedStatement) con.prepareStatement(selectPrivilages);
+
+			pS.setString(1, Integer.toString(messageId));
+			rS = pS.executeQuery();
+			while (rS.next()) {
+				idsUsersWithPrivilages.add(Integer.parseInt(rS.getString("user_id")));
+			}
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Iterator it = idsUsersWithPrivilages.iterator();
+		while(it.hasNext()){
+			listUserDB.add(refreshedLoggedUser(it.next().toString()));
+		}
+		return listUserDB;
+	}
+	
+	public ArrayList<Integer> getEditPrivilagesForMessageByUserID(int message_id){
+		ArrayList<Integer> idsList = new ArrayList<>();
+		ArrayList<UserDB> usersList = getEditPrivilagesForMessage(message_id);
+		Iterator<UserDB> it = usersList.iterator();
+		while(it.hasNext()){
+			idsList.add(((UserDB)it.next()).getUser_id());
+		}
+		return idsList;
+	}
+
+	public ResultSet executeFetchQuery(String sql) {
+		ResultSet rs = null;
+		try {
+			connect();
+			rs = con.createStatement().executeQuery(sql);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return rs;
+	}
+
+//	public boolean permissionToEditMessage(int user_id, int message_id){
+//		
+//	}
+	
+	public boolean addEditPermissionsForUser(int user_id, int message_id) {
+		ArrayList<UserDB> userList = getEditPrivilagesForMessage(message_id);
+		Iterator<UserDB> it = userList.iterator();
+		while(it.hasNext()){
+			if(it.next().getUser_id() == user_id){
+				return false;
+			}
+		}
+
+		PreparedStatement pS;
+		String addPrivilages ="INSERT INTO message_edit_perm (user_id, message_id) VALUES (?, ?);";	
+		int updatedRows = -1;
+		try {
+			connect();
+			pS = (PreparedStatement) con.prepareStatement(addPrivilages);
+			pS.setString(1, Integer.toString(user_id));
+			pS.setString(2, Integer.toString(message_id));
+			updatedRows = pS.executeUpdate();
+			System.out.println("Add permission for user: "+user_id+" and message: "+message_id+", Inserted rows: " + updatedRows);
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(updatedRows > 0){
+			return true;
+		}else{		
+			return false;
+		}
+	}
+
+	public boolean removeEditPermissionsForUser(int remove_perm_user_id, int message_id) {
+		
+		PreparedStatement pS;
+		ResultSet rS;
+		int deletedRows = 0;
+		Message ms;
+		try {
+			connect();
+			String delete = "delete from message_edit_perm where user_id=? and message_id=?";
+			pS = (PreparedStatement) con.prepareStatement(delete);
+			pS.setString(1, Integer.toString(remove_perm_user_id));
+			pS.setString(2, Integer.toString(message_id));
+			deletedRows = pS.executeUpdate();
+
+
+			System.out.println("Deleted permissions, Deleted rows: " + deletedRows + " /tDeleted for message: " + message_id
+					+ " Deleted for userID: " + remove_perm_user_id);
+			con.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+		
 	}
 
 }
