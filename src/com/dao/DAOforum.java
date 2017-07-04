@@ -17,7 +17,7 @@ import com.mysql.jdbc.Statement;
 
 public class DAOforum {
 
-	public static final String BLOCKED = "blocked";
+	public static final String BLOCKED = "User is blocked";
 	public static final String WRONG_DATA = "wrong_data";
 	public static final String CORRECTLY_LOGGED = "correctly_logged";
 
@@ -61,6 +61,139 @@ public class DAOforum {
 	}
 
 	public String authentication(String uName, String uPass) {
+		connect();
+		PreparedStatement pS;
+		ResultSet rS;
+		UserDB user;
+		try {
+			pS = (PreparedStatement) con
+					.prepareStatement("select * from usersdb where user_name=? and password_hash=?");
+			pS.setString(1, uName);
+			pS.setString(2, uPass);
+			rS = pS.executeQuery();
+			// jezeli login i haslo sie zgadzaja
+			if (rS.next() && refreshedLoggedUserByName(uName).getBlocked() == 0 && !userIsFake(uName)) {
+
+				user = refreshedLoggedUserByName(uName);
+				System.out.println("Correctly logged user " + user.getUser_name());
+				con.close();
+				return CORRECTLY_LOGGED;
+
+				// jezeli nie zgadza sie haslo
+			} else {
+				// zmiany w master dla git test
+				UserDB checkedUser = refreshedLoggedUserByName(uName);
+				// jezeli nie przekroczono maksymalnej liczby blednych hasel
+				if (checkedUser != null && checkedUser.getUsedLoginAttempts() < checkedUser.getMaxLoginAttempts()) {
+					// gdy osiagnieta zosatnie maksymalna liczba nieudanych
+					// logowan, blokada
+					String update_used_login_attempts;
+					if (checkedUser.getMaxLoginAttempts() - checkedUser.getUsedLoginAttempts() == 1) {
+						update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
+								+ "last_invalid_login=?, blocked=1 WHERE user_name=?";
+					} else {
+						update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
+								+ "last_invalid_login=? WHERE user_name=?";
+					}
+					pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
+					pS.setString(1, UserDB.ft.format(new Date()));
+					pS.setString(2, uName);
+					pS.executeUpdate();
+					System.out.println("Invalid attempt for user " + checkedUser.getUser_name()
+							+ ", login_attempts increased to: " + (checkedUser.getUsedLoginAttempts() + 1)
+							+ ", max attempts: " + checkedUser.getMaxLoginAttempts());
+					con.close();
+					return WRONG_DATA;
+
+					// jezeli osiagnieto maksymalna liczbe nieudanych logowan
+				} else if (checkedUser != null) {
+					String last_invalid_login = "Select last_invalid_login, block_time from usersdb WHERE user_name=?";
+					pS = (PreparedStatement) con.prepareStatement(last_invalid_login);
+					pS.setString(1, uName);
+					rS = pS.executeQuery();
+					while (rS.next()) {
+						checkedUser.setLastInvalidLoginDateFromString(rS.getString("last_invalid_login"));
+					}
+					System.out.println("Overloaded invalid attempts");
+					int timeFromLastInvalidLogin = (int) ((new Date()).getTime()
+							- (checkedUser.getLastInvalidLoginDate()).getTime()) / 1000;
+					int invalidLoginAttempts = checkedUser.getUsedLoginAttempts()-checkedUser.getMaxLoginAttempts();
+					int timeToUnblock = (checkedUser.getBlock_time())*(invalidLoginAttempts+1)*(invalidLoginAttempts+1)-timeFromLastInvalidLogin;
+					System.out.println("Time from last invalid login  " + timeFromLastInvalidLogin +
+							" / time to unblock: " + timeToUnblock);
+					// jezeli czas od ostatniego logowania jest wiekszy niz
+					// minimalny
+					if (timeToUnblock<0) {
+						System.out.println("Try after time unblock");
+						if(userValidation(uName, uPass)){
+							String update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=0, blocked=0 WHERE user_name=?";
+							pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
+							pS.setString(1, uName);
+							pS.executeUpdate();
+							
+							return CORRECTLY_LOGGED;
+						}else{
+							String update_used_login_attempts;
+							update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
+										+ "last_invalid_login=? WHERE user_name=?";
+							
+							pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
+							pS.setString(1, UserDB.ft.format(new Date()));
+							pS.setString(2, uName);
+							pS.executeUpdate();
+							System.out.println("Invalid attempt for user " + checkedUser.getUser_name()
+									+ ", login_attempts increased to: " + (checkedUser.getUsedLoginAttempts() + 1)
+									+ ", max attempts: " + checkedUser.getMaxLoginAttempts());
+							con.close();
+							return WRONG_DATA;
+						}
+					}
+					// zablokuj logowanie jezeli nie minal czas blokady
+					String update_blocked_state = "UPDATE usersdb SET blocked=1 WHERE user_name=?";
+					pS = (PreparedStatement) con.prepareStatement(update_blocked_state);
+					pS.setString(1, uName);
+					pS.executeUpdate();
+					con.close();
+					return BLOCKED+" for "+ timeToUnblock +" seconds";
+
+				} else {
+
+					System.out.println("Choosen user not exist");
+					con.close();
+					return WRONG_DATA;
+				}
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private boolean userValidation(String uName, String uPass){
+		connect();
+		PreparedStatement pS;
+		ResultSet rS;
+		UserDB user;
+		boolean validation = false;
+		
+		try {
+			pS = (PreparedStatement) con.prepareStatement("select * from usersdb where user_name=? and password_hash=?");
+			pS.setString(1, uName);
+			pS.setString(2, uPass);
+			rS = pS.executeQuery();
+			if(rS.next()){
+				validation = true;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return validation;
+	}
+	
+	public String authentication2(String uName, String uPass) {
 		connect();
 		PreparedStatement pS;
 		ResultSet rS;

@@ -47,11 +47,11 @@ public class Login extends HttpServlet {
 		
 		if(option == DAOforum.CORRECTLY_LOGGED){
 		logged_user = daoForum.refreshedLoggedUserByName(uname);
-		}else if(option == DAOforum.BLOCKED){
-			session.setAttribute("error", "User is blocked");
+		}else if(option == DAOforum.WRONG_DATA){
+			session.setAttribute("error", "Invalid login or password");
 			response.sendRedirect("login.jsp");
 		}else{
-			session.setAttribute("error", "Invalid login or password");
+			session.setAttribute("error", option);
 			response.sendRedirect("login.jsp");
 		}
 		
