@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 
 import com.models.Message;
 import com.models.UserDB;
@@ -71,7 +72,7 @@ public class DAOforum {
 			pS.setString(2, uPass);
 			rS = pS.executeQuery();
 			// jezeli login i haslo sie zgadzaja
-			if (rS.next() && refreshedLoggedUserByName(uName).getBlocked() == 0) {
+			if (rS.next() && refreshedLoggedUserByName(uName).getBlocked() == 0 && !userIsFake(uName)) {
 
 				user = refreshedLoggedUserByName(uName);
 				System.out.println("Correctly logged user " + user.getUser_name());
@@ -357,9 +358,10 @@ public class DAOforum {
 				String used_login_attempts = rS.getString("used_login_attempts");
 				String block_time = rS.getString("block_time");
 				String blocked = rS.getString("blocked");
+				String isFake = rS.getString("isFake");
 
 				user = new UserDB(user_id, user_name, permissions_id, last_login, last_invalid_login,
-						max_login_attempts, used_login_attempts, block_time, blocked);
+						max_login_attempts, used_login_attempts, block_time, blocked, isFake);
 				return user;
 			} else {
 				return null;
@@ -392,9 +394,10 @@ public class DAOforum {
 				String used_login_attempts = rS.getString("used_login_attempts");
 				String block_time = rS.getString("block_time");
 				String blocked = rS.getString("blocked");
+				String isFake = rS.getString("isFake");
 
 				user = new UserDB(user_id, user_name, permissions_id, last_login, last_invalid_login,
-						max_login_attempts, used_login_attempts, block_time, blocked);
+						max_login_attempts, used_login_attempts, block_time, blocked, isFake);
 				return user;
 			} else {
 				return null;
@@ -445,9 +448,10 @@ public class DAOforum {
 				String used_login_attempts = rS.getString("used_login_attempts");
 				String block_time = rS.getString("block_time");
 				String blocked = rS.getString("blocked");
+				String isFake = rS.getString("isFake");
 
 				user = new UserDB(user_id, user_name, permissions_id, last_login, last_invalid_login,
-						max_login_attempts, used_login_attempts, block_time, blocked);
+						max_login_attempts, used_login_attempts, block_time, blocked, isFake);
 				usersMap.put(user.getUser_id(), user);
 			}
 			con.close();
@@ -572,4 +576,105 @@ public class DAOforum {
 		
 	}
 
+	public boolean userExist (String uname){
+
+		PreparedStatement pS;
+		ResultSet rS;
+		UserDB user;
+		try {
+			connect();
+			pS = (PreparedStatement) con.prepareStatement("select * from usersdb where user_name=?");
+			pS.setString(1, uname);
+			rS = pS.executeQuery();
+
+			if (rS.next()){
+				con.close();
+				return true;
+			} else {
+				return false;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public String createFakeUser(String uname) {
+		// TODO Auto-generated method stub
+//		String user_id = rS.getString("user_id"); //powinien byc zwrot z bazy
+		String user_name = uname;
+		String permissions_id = "3";//permission dla ownera
+		String password_hash = "xxxxxxxx";
+		String last_login = UserDB.ft.format(new Date());
+//		String last_invalid_login = rS.getString("last_invalid_login"); //default ustawione w bazie
+		String max_login_attempts = Integer.toString(new Random().nextInt(10)+1);//od 1 do 10
+		String used_login_attempts = "0";
+		String block_time = Integer.toString(new Random().nextInt(10)+5);
+//		String blocked = rS.getString("blocked");//defalut 0 -false
+		String isFake = "1";
+		
+		
+		String insertFakeUser = "INSERT INTO `usersdb` (`user_name`, `permissions_id`, "
+				+ "`password_hash`, `last_login`, `max_login_attempts`, `used_login_attempts`, `block_time`, `isFake`) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		
+
+		PreparedStatement pS;
+		ResultSet rS;
+
+		try {
+			connect();
+			pS = (PreparedStatement) con.prepareStatement(insertFakeUser, Statement.RETURN_GENERATED_KEYS);
+			pS.setString(1, user_name);
+			pS.setString(2, permissions_id);
+			pS.setString(3, password_hash);
+			pS.setString(4, last_login);
+			pS.setString(5, max_login_attempts);
+			pS.setString(6, used_login_attempts);
+			pS.setString(7, block_time);
+			pS.setString(8, isFake);
+			int insertedRows = pS.executeUpdate();
+			rS = pS.getGeneratedKeys();
+			rS.next();
+			int user_id = rS.getInt(1);
+			System.out.println("Added fake user with id: " + user_id);
+			con.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		String option = "";
+		option = authentication(uname, null);
+		return option;
+	}
+	
+	public boolean userIsFake (String uname){
+
+		PreparedStatement pS;
+		ResultSet rS;
+		UserDB user;
+		String isFake = "";
+		try {
+			connect();
+			pS = (PreparedStatement) con.prepareStatement("select isFake from usersdb where user_name=?");
+			pS.setString(1, uname);
+			rS = pS.executeQuery();
+
+			while(rS.next()){
+				isFake = rS.getString("isFake");
+			}
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(isFake.equals("1")){
+			return true;
+		}else{
+			return false;
+		}
+	}
 }

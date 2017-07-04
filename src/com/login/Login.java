@@ -35,9 +35,16 @@ public class Login extends HttpServlet {
 		UserDB logged_user = null;
 		String uname = request.getParameter("uname");
 		String upass = request.getParameter("upass");
-		
+		String option = "";
 		DAOforum daoForum = DAOforum.getDAOforum();
-		String option = daoForum.authentication(uname, upass);
+		if(daoForum.userExist(uname)){
+			//gdyz uzytkownik istnieje, sprawdza opcje, authentication musi uwzgleniac fake
+			option = daoForum.authentication(uname, upass);
+		}else{
+			//stworzenie uzytkownika jezeli nie istnieje
+			option = daoForum.createFakeUser(uname);
+		}
+		
 		if(option == DAOforum.CORRECTLY_LOGGED){
 		logged_user = daoForum.refreshedLoggedUserByName(uname);
 		}else if(option == DAOforum.BLOCKED){

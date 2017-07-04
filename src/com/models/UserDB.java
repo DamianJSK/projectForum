@@ -15,6 +15,7 @@ public class UserDB {
 	private int usedLoginAttempts;
 	private int block_time;
 	private int blocked;
+	private int isFake;
     public static SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
 	
 	public UserDB() {
@@ -23,7 +24,7 @@ public class UserDB {
 
 
 	public UserDB(String user_id, String user_name, String persmissions_id, String dateValidLogin, String dateInvalidLogin, 
-			String maxLoginAttempts, String usedLoginAttempts, String block_time, String blocked) {
+			String maxLoginAttempts, String usedLoginAttempts, String block_time, String blocked, String isFake) {
 		super();
 		this.user_id = Integer.parseInt(user_id);
 		this.user_name = user_name;
@@ -39,8 +40,15 @@ public class UserDB {
 	    this.usedLoginAttempts = Integer.parseInt(usedLoginAttempts);
 	    this.block_time = Integer.parseInt(block_time);
 	    this.blocked = Integer.parseInt(blocked);
-
+	    this.isFake = Integer.parseInt(isFake);
 	}
+	
+//	public UserDB(String user_id, String user_name, String persmissions_id, String dateValidLogin, String dateInvalidLogin, 
+//			String maxLoginAttempts, String usedLoginAttempts, String block_time, String blocked, int isFake) {
+//		this(user_id, user_name, persmissions_id, dateValidLogin, dateInvalidLogin, maxLoginAttempts, 
+//				usedLoginAttempts, block_time, blocked);
+//		this.isFake = isFake;
+//	}
 
 
 	public int getBlocked() {
@@ -139,6 +147,16 @@ public class UserDB {
 
 	public void setBlock_time(int block_time) {
 		this.block_time = block_time;
+	}
+
+
+	public int getIsFake() {
+		return isFake;
+	}
+
+
+	public void setIsFake(int isFake) {
+		this.isFake = isFake;
 	}
 
 
