@@ -36,11 +36,24 @@ public class DAOforum {
 		return DAOFORUM;
 	}
 
+	//local access
+//	public void connect() {
+//
+//		try {
+//			Class.forName("com.mysql.jdbc.Driver");
+//			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/login", "root", "rootmysql12");
+//
+//		} catch (ClassNotFoundException | SQLException e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
+	//remote access
 	public void connect() {
 
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/login", "root", "");
+			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/sampledb", "root2", "rootmysql12");
 
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
