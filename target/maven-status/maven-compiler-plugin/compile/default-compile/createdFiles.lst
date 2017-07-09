@@ -1,0 +1,16 @@
+com\models\UserDB.class
+com\login\AddPermission.class
+com\Main.class
+com\login\Edit.class
+com\models\Message.class
+com\login\Login.class
+com\login\ChangePassword.class
+com\login\Logout.class
+com\login\EditPermissions.class
+com\login\Account.class
+com\dao\DAOforum.class
+com\login\NewMessage.class
+com\login\Delete.class
+com\login\Forum.class
+com\login\RemovePermission.class
+com\models\Permissions.class
