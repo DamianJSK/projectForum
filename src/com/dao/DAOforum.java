@@ -53,7 +53,7 @@ public class DAOforum {
 
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/sampledb", "root2", "rootmysql12");
+			con = (Connection) DriverManager.getConnection("jdbc:mysql://172.30.62.42:3306/sampledb", "root2", "rootmysql12");
 
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
