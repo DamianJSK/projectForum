@@ -80,7 +80,7 @@ public class DAOforum {
 		UserDB user;
 		try {
 			pS = (PreparedStatement) con
-					.prepareStatement("select * from usersdb where user_name=? and password_hash=?");
+					.prepareStatement("select * from usersdb where user_name=? and BINARY password_hash=?");
 			pS.setString(1, uName);
 			pS.setString(2, uPass);
 			rS = pS.executeQuery();
@@ -191,7 +191,7 @@ public class DAOforum {
 		boolean validation = false;
 		
 		try {
-			pS = (PreparedStatement) con.prepareStatement("select * from usersdb where user_name=? and password_hash=?");
+			pS = (PreparedStatement) con.prepareStatement("select * from usersdb where user_name=? and BINARY password_hash=?");
 			pS.setString(1, uName);
 			pS.setString(2, uPass);
 			rS = pS.executeQuery();
@@ -213,7 +213,7 @@ public class DAOforum {
 		UserDB user;
 		try {
 			pS = (PreparedStatement) con
-					.prepareStatement("select * from usersdb where user_name=? and password_hash=?");
+					.prepareStatement("select * from usersdb where user_name=? and BINARY password_hash=?");
 			pS.setString(1, uName);
 			pS.setString(2, uPass);
 			rS = pS.executeQuery();
@@ -305,7 +305,7 @@ public class DAOforum {
 		UserDB user;
 		try {
 			pS = (PreparedStatement) con
-					.prepareStatement("select * from usersdb where user_name=? and password_hash=?");
+					.prepareStatement("select * from usersdb where user_name=? and BINARY password_hash=?");
 			pS.setString(1, uName);
 			pS.setString(2, uPass);
 			rS = pS.executeQuery();
