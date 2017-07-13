@@ -39,7 +39,7 @@
 		<div id="logo">Forum</div>
 		<div id="content">
 			<span class="bigtitle">Edit message permissions for
-				${username} </span> <br> The privilege to edit the message they have:</br>
+				${username} </span> <br> Privilege to edit this message have:</br>
 			<textarea name="editList" rows="10" maxlength="200"
 				readonly="readonly"><%
 					if (!privilagedUsers.isEmpty()) {

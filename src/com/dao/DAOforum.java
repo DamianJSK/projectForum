@@ -41,7 +41,7 @@ public class DAOforum {
 //
 //		try {
 //			Class.forName("com.mysql.jdbc.Driver");
-//			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/login", "root", "rootmysql12");
+//			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/login", "root", "");
 //
 //		} catch (ClassNotFoundException | SQLException e) {
 //			e.printStackTrace();
@@ -581,7 +581,7 @@ public class DAOforum {
 	public HashMap<Integer, UserDB> getAllUsers() {
 		HashMap<Integer, UserDB> usersMap = new HashMap<>();
 		UserDB user;
-		ResultSet rS = executeFetchQuery("select * from usersdb;");
+		ResultSet rS = executeFetchQuery("select * from usersdb where isFake=0;");
 		try {
 
 			while (rS.next()) {

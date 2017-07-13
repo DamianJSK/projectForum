@@ -75,7 +75,7 @@
 			</table>
 			<br>
 			<form action="newmessage.jsp">
-				<input class="btn" type="submit" value="Dodaj wiadomosc">
+				<input class="btn" type="submit" value="Add message">
 			</form>
 		</div>
 		<div id="footer">Forum project by DJ & GF & DK &copy;</div>
