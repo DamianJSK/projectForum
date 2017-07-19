@@ -37,18 +37,20 @@ public class Login extends HttpServlet {
 		String upass = request.getParameter("upass");
 		String option = "";
 		DAOforum daoForum = DAOforum.getDAOforum();
-		if(daoForum.userExist(uname)){
-			//gdyz uzytkownik istnieje, sprawdza opcje, authentication musi uwzgleniac fake
-			option = daoForum.authentication(uname, upass);
-		}else{
-			//stworzenie uzytkownika jezeli nie istnieje
-			option = daoForum.createFakeUser(uname);
-		}
+		if(!uname.equals("")){
+//		if(daoForum.userExist(uname)){
+//			//gdyz uzytkownik istnieje, sprawdza opcje, authentication musi uwzgleniac fake
+//			option = daoForum.authentication(uname, upass);
+//		}else{
+//			//stworzenie uzytkownika jezeli nie istnieje
+//			option = daoForum.createFakeUser(uname);
+//		}
 		
+		option = daoForum.authenticationWithBlocking(uname, upass);
 		if(option == DAOforum.CORRECTLY_LOGGED){
 		logged_user = daoForum.refreshedLoggedUserByName(uname);
-		}else if(option == DAOforum.WRONG_DATA){
-			session.setAttribute("error", "Invalid login or password");
+		}else if(option == DAOforum.BLOCKED){
+			session.setAttribute("error", "User is blocked");
 			response.sendRedirect("login.jsp");
 		}else{
 			session.setAttribute("error", option);
@@ -65,6 +67,10 @@ public class Login extends HttpServlet {
 		}else{
 //			session.setAttribute("error", "Invalid login or password");
 //			response.sendRedirect("login.jsp");
+		}
+		}else{
+			session.setAttribute("error", "Invalid login or password");
+			response.sendRedirect("login.jsp");
 		}
 	}
 

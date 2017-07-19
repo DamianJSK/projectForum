@@ -13,6 +13,9 @@
 </head>
 <body>
 	<%
+		if (session.getAttribute("logged_user") == null) {
+			response.sendRedirect("login.jsp");
+		}else{
 		Message message = null;
 		ArrayList<Message> messages = (ArrayList<Message>) session.getAttribute("messageList");
 		int messageId = Integer.parseInt(request.getParameter("messageId"));
@@ -24,15 +27,12 @@
 			}
 		}
 		HashMap<Integer, UserDB> usersMap = (HashMap<Integer, UserDB>) session.getAttribute("usersMap");
-	%>
-	<%
-		if (session.getAttribute("logged_user") == null) {
-			response.sendRedirect("login.jsp");
-		} else if (((UserDB) session.getAttribute("logged_user")).getUser_id() != createdBy) {
+		if (((UserDB) session.getAttribute("logged_user")).getUser_id() != createdBy) {
 			response.sendRedirect("forum.jsp");
 		} else {
 			DAOforum daoForum = DAOforum.getDAOforum();
 			ArrayList<UserDB> privilagedUsers = daoForum.getEditPrivilagesForMessage(messageId);
+		
 	%>
 
 	<div id="container">
@@ -40,9 +40,8 @@
 		<div id="content">
 			<span class="bigtitle">Edit message permissions for
 				${username} </span> <br> Privilege to edit this message have:</br>
-			<textarea name="editList" rows="10" maxlength="200"
-				readonly="readonly"><%
-					if (!privilagedUsers.isEmpty()) {
+			<textarea name="editList" rows="10" maxlength="200" 
+			readonly="readonly"><%if (!privilagedUsers.isEmpty()) {
 							for (UserDB user : privilagedUsers) {
 								out.println(user.getUser_name());
 							}
@@ -53,8 +52,8 @@
 
 			<form action="AddPermission">
 				<input type="hidden" name="message_id" value="<%=messageId%>">
-				 <input class="btn" type="submit" value="Add">
-				<select name="add_permissions" id="mainselection">
+				<input class="btn" type="submit" value="Add"> <select
+					name="add_permissions" id="mainselection">
 					<%
 						for (Map.Entry<Integer, UserDB> entry : usersMap.entrySet()) {
 								Integer key = entry.getKey();
@@ -68,12 +67,13 @@
 							}
 					%>
 				</select>
-			</form></br>
+			</form>
+			</br>
 
 			<form action="RemovePermission">
 				<input type="hidden" name="message_id" value="<%=messageId%>">
-				<input class="btn" type="submit" value="Remove">
-				<select name="remove_permissions" id="mainselection">
+				<input class="btn" type="submit" value="Remove"> <select
+					name="remove_permissions" id="mainselection">
 					<%
 						for (Map.Entry<Integer, UserDB> entry : usersMap.entrySet()) {
 								Integer key = entry.getKey();
@@ -86,8 +86,9 @@
 						}
 							}
 					%>
-				</select> 
-			</form></br>
+				</select>
+			</form>
+			</br>
 			<form action="Forum">
 				<input class="btn" type="submit" value="Back">
 			</form>
@@ -96,6 +97,7 @@
 		<div id="footer">Forum project by DJ & GF & DK &copy;</div>
 	</div>
 	<%
+		}
 		}
 	%>
 </body>

@@ -1,10 +1,11 @@
 package com.models;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class UserDB {
+public class UserDB implements Serializable{
 
 	private int user_id;
 	private String user_name;

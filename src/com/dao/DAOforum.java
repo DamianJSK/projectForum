@@ -17,8 +17,8 @@ import com.mysql.jdbc.Statement;
 
 public class DAOforum {
 
-	public static final String BLOCKED = "User is blocked";
-	public static final String WRONG_DATA = "wrong_data";
+	public static final String BLOCKED = "user_blocked";
+	public static final String WRONG_DATA = "Invalid login or password, time to unblock: ";
 	public static final String CORRECTLY_LOGGED = "correctly_logged";
 
 	private static final DAOforum DAOFORUM = init();
@@ -36,29 +36,31 @@ public class DAOforum {
 		return DAOFORUM;
 	}
 
-	//local access
-//	public void connect() {
-//
-//		try {
-//			Class.forName("com.mysql.jdbc.Driver");
-//			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/login", "root", "");
-//
-//		} catch (ClassNotFoundException | SQLException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
-	//remote access
+	// local access
 	public void connect() {
 
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			con = (Connection) DriverManager.getConnection("jdbc:mysql://172.30.62.42:3306/sampledb", "root2", "rootmysql12");
+			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/login", "root", "");
 
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
 	}
+
+	// remote access
+	// public void connect() {
+	//
+	// try {
+	// Class.forName("com.mysql.jdbc.Driver");
+	// con = (Connection)
+	// DriverManager.getConnection("jdbc:mysql://172.30.62.42:3306/sampledb",
+	// "root2", "rootmysql12");
+	//
+	// } catch (ClassNotFoundException | SQLException e) {
+	// e.printStackTrace();
+	// }
+	// }
 
 	public Connection getConnection() {
 		Connection con = null;
@@ -79,10 +81,8 @@ public class DAOforum {
 		ResultSet rS;
 		UserDB user;
 		try {
-			pS = (PreparedStatement) con
-					.prepareStatement("select * from usersdb where user_name=? and BINARY password_hash=?");
+			pS = (PreparedStatement) con.prepareStatement("select * from usersdb where user_name=?");
 			pS.setString(1, uName);
-			pS.setString(2, uPass);
 			rS = pS.executeQuery();
 			// jezeli login i haslo sie zgadzaja
 			if (rS.next() && refreshedLoggedUserByName(uName).getBlocked() == 0 && !userIsFake(uName)) {
@@ -130,26 +130,27 @@ public class DAOforum {
 					System.out.println("Overloaded invalid attempts");
 					int timeFromLastInvalidLogin = (int) ((new Date()).getTime()
 							- (checkedUser.getLastInvalidLoginDate()).getTime()) / 1000;
-					int invalidLoginAttempts = checkedUser.getUsedLoginAttempts()-checkedUser.getMaxLoginAttempts();
-					int timeToUnblock = (checkedUser.getBlock_time())*(invalidLoginAttempts+1)*(invalidLoginAttempts+1)-timeFromLastInvalidLogin;
-					System.out.println("Time from last invalid login  " + timeFromLastInvalidLogin +
-							" / time to unblock: " + timeToUnblock);
+					int invalidLoginAttempts = checkedUser.getUsedLoginAttempts() - checkedUser.getMaxLoginAttempts();
+					int timeToUnblock = (checkedUser.getBlock_time()) * (invalidLoginAttempts + 1)
+							* (invalidLoginAttempts + 1) - timeFromLastInvalidLogin;
+					System.out.println("Time from last invalid login  " + timeFromLastInvalidLogin
+							+ " / time to unblock: " + timeToUnblock);
 					// jezeli czas od ostatniego logowania jest wiekszy niz
 					// minimalny
-					if (timeToUnblock<0) {
+					if (timeToUnblock < 0) {
 						System.out.println("Try after time unblock");
-						if(userValidation(uName, uPass)){
+						if (userValidation(uName, uPass)) {
 							String update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=0, blocked=0 WHERE user_name=?";
 							pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
 							pS.setString(1, uName);
 							pS.executeUpdate();
-							
+
 							return CORRECTLY_LOGGED;
-						}else{
+						} else {
 							String update_used_login_attempts;
 							update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
-										+ "last_invalid_login=? WHERE user_name=?";
-							
+									+ "last_invalid_login=? WHERE user_name=?";
+
 							pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
 							pS.setString(1, UserDB.ft.format(new Date()));
 							pS.setString(2, uName);
@@ -167,7 +168,7 @@ public class DAOforum {
 					pS.setString(1, uName);
 					pS.executeUpdate();
 					con.close();
-					return BLOCKED+" for "+ timeToUnblock +" seconds";
+					return BLOCKED + " for " + timeToUnblock + " seconds";
 
 				} else {
 
@@ -182,121 +183,317 @@ public class DAOforum {
 		}
 		return null;
 	}
-	
-	private boolean userValidation(String uName, String uPass){
+
+	private boolean userValidation(String uName, String uPass) {
 		connect();
 		PreparedStatement pS;
 		ResultSet rS;
 		UserDB user;
 		boolean validation = false;
-		
-		try {
-			pS = (PreparedStatement) con.prepareStatement("select * from usersdb where user_name=? and BINARY password_hash=?");
-			pS.setString(1, uName);
-			pS.setString(2, uPass);
-			rS = pS.executeQuery();
-			if(rS.next()){
-				validation = true;
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return validation;
-	}
-	
-	public String authentication2(String uName, String uPass) {
-		connect();
-		PreparedStatement pS;
-		ResultSet rS;
-		UserDB user;
+
 		try {
 			pS = (PreparedStatement) con
 					.prepareStatement("select * from usersdb where user_name=? and BINARY password_hash=?");
 			pS.setString(1, uName);
 			pS.setString(2, uPass);
 			rS = pS.executeQuery();
-			// jezeli login i haslo sie zgadzaja
-			if (rS.next() && refreshedLoggedUserByName(uName).getBlocked() == 0 && !userIsFake(uName)) {
-
-				user = refreshedLoggedUserByName(uName);
-				System.out.println("Correctly logged user " + user.getUser_name());
-				con.close();
-				return CORRECTLY_LOGGED;
-
-				// jezeli nie zgadza sie haslo
-			} else {
-				// zmiany w master dla git test
-				UserDB checkedUser = refreshedLoggedUserByName(uName);
-				// jezeli nie przekroczono maksymalnej liczby blednych hasel
-				if (checkedUser != null && checkedUser.getUsedLoginAttempts() < checkedUser.getMaxLoginAttempts()) {
-					// gdy osiagnieta zosatnie maksymalna liczba nieudanych
-					// logowan, blokada
-					String update_used_login_attempts;
-					if (checkedUser.getMaxLoginAttempts() - checkedUser.getUsedLoginAttempts() == 1) {
-						update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
-								+ "last_invalid_login=?, blocked=1 WHERE user_name=?";
-					} else {
-						update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
-								+ "last_invalid_login=? WHERE user_name=?";
-					}
-					pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
-					pS.setString(1, UserDB.ft.format(new Date()));
-					pS.setString(2, uName);
-					pS.executeUpdate();
-					System.out.println("Invalid attempt for user " + checkedUser.getUser_name()
-							+ ", login_attempts increased to: " + (checkedUser.getUsedLoginAttempts() + 1)
-							+ ", max attempts: " + checkedUser.getMaxLoginAttempts());
-					con.close();
-					return WRONG_DATA;
-
-					// jezeli osiagnieto maksymalna liczbe nieudanych logowan
-				} else if (checkedUser != null) {
-					String last_invalid_login = "Select last_invalid_login, block_time from usersdb WHERE user_name=?";
-					pS = (PreparedStatement) con.prepareStatement(last_invalid_login);
-					pS.setString(1, uName);
-					rS = pS.executeQuery();
-					while (rS.next()) {
-						checkedUser.setLastInvalidLoginDateFromString(rS.getString("last_invalid_login"));
-					}
-					System.out.println("Overload invalid attempts");
-					int timeFromLastInvalidLogin = (int) ((new Date()).getTime()
-							- (checkedUser.getLastInvalidLoginDate()).getTime()) / 1000;
-					System.out.println("Time from last invalid login  " + timeFromLastInvalidLogin
-							+ " / time to unblock: " + (checkedUser.getBlock_time() - timeFromLastInvalidLogin));
-					// jezeli czas od ostatniego logowania jest wiekszy niz
-					// minimalny
-					if (timeFromLastInvalidLogin > checkedUser.getBlock_time()) {
-						System.out.println("User unblocked, time after block ends: " + timeFromLastInvalidLogin);
-						String update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=0, blocked=0 WHERE user_name=?";
-						pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
-						pS.setString(1, uName);
-						pS.executeUpdate();
-						con.close();
-						return authentication(uName, uPass);
-					}
-					// zablokuj logowanie jezeli nie minal czas blokady
-					String update_blocked_state = "UPDATE usersdb SET blocked=1 WHERE user_name=?";
-					pS = (PreparedStatement) con.prepareStatement(update_blocked_state);
-					pS.setString(1, uName);
-					pS.executeUpdate();
-					con.close();
-					return BLOCKED;
-
-				} else {
-
-					System.out.println("Choosen user not exist");
-					con.close();
-					return WRONG_DATA;
-				}
+			if (rS.next()) {
+				validation = true;
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+
+		return validation;
 	}
+
+	private boolean updateInvalidLoginDateAndAttempts(String uName, UserDB user) {
+		PreparedStatement pS;
+		ResultSet rS;
+		String update_used_login_attempts;
+		update_used_login_attempts = "UPDATE usersdb SET used_login_attempts=used_login_attempts+1,"
+				+ "last_invalid_login=? WHERE user_name=?";
+
+		connect();
+		try {
+			pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
+			pS.setString(1, UserDB.ft.format(new Date()));
+			pS.setString(2, uName);
+			pS.executeUpdate();
+			System.out.println("Invalid attempt for user " + user.getUser_name() + ", login_attempts increased to: "
+					+ (user.getUsedLoginAttempts() + 1) + ", max attempts: " + user.getMaxLoginAttempts());
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	public String authenticationWithBlocking(String uName, String uPass) {
+		PreparedStatement pS;
+		ResultSet rS;
+		UserDB user;
+		// 1. Sprawdziæ czy u¿ytkownik istnieje
+		// 1.a jezeli nie - stworzyc FAKE i wyswietlic czas
+		if (!userExist(uName)) {
+			if (createFakeUserBoolean(uName)) {
+				System.out.println("Fake user utworzony");
+			} else {
+				System.out.println("Blad przy tworzeniu fake usera");
+			}
+			// return czasu do odblokowania, z mnoznikiem 1
+			return WRONG_DATA + refreshedLoggedUserByName(uName).getBlock_time();
+			// 1.b jezeli istnieje to dalej, pobrac uzytkownika i dane
+		} else {
+			user = refreshedLoggedUserByName(uName);
+			// 2. Sprawdziæ czy u¿ytkownik FAKE
+			// 2.a jezeli fake - podbic nieudane proby, wyswietlic czas do
+			// odblokowania
+//			if ((user.getIsFake() == 1 && user.getUsedLoginAttempts()+2<=user.getMaxLoginAttempts()) || 
+//					(user.getIsFake() == 1 && user.getMaxLoginAttempts()!=0)) {
+			if(user.getIsFake()==1 && user.getUsedLoginAttempts()+1<=user.getMaxLoginAttempts()){
+				int timeToUnblock = (user.getUsedLoginAttempts()) * (user.getUsedLoginAttempts())
+						* user.getBlock_time();
+				int timeFromLastInvalidLogin = (int) ((new Date()).getTime()
+						- (user.getLastInvalidLoginDate()).getTime()) / 1000;
+				boolean toFastLogin = timeToUnblock > timeFromLastInvalidLogin ? true : false;
+				if (toFastLogin) {
+					System.out.println("Za wczesnie, fake user, wyswietlono czas do oblokowania");
+//					int timeToUnblockLogin = (user.getUsedLoginAttempts() + 1)
+//							* (user.getUsedLoginAttempts() + 1) * user.getBlock_time()-timeFromLastInvalidLogin;
+					int timeToUnblockLogin = timeToUnblock - timeFromLastInvalidLogin;
+					//jezeli nie osiagnieto max nieudancyh logowan
+
+					return WRONG_DATA + (timeToUnblockLogin);
+					
+				}else{
+					if (updateInvalidLoginDateAndAttempts(uName, user)) {
+						System.out.println("Dodano nieudane proby logowania dla fake usera");
+					} else {
+						System.out.println("Nieudana próba zaktualizowania daty logowania i attempts dla fake usera");
+					}
+					user = refreshedLoggedUserByName(uName);
+					if(user.getMaxLoginAttempts()==user.getUsedLoginAttempts()){
+						blockUser(uName);
+						return BLOCKED;
+					}else{
+						timeToUnblock = (user.getUsedLoginAttempts()) * (user.getUsedLoginAttempts())
+								* user.getBlock_time();
+						return WRONG_DATA + timeToUnblock;
+					}
+				}
+				// 2.b jezeli nie jest Fake
+			} else {
+				// 3. Sprawdziæ czy u¿ytkownik jest zablokowany
+				// 3.a jezeli tak to wyswietlic komunikat i nie zalogowac
+				if (user.getBlocked() == 1) {
+					System.out.println("User is blocked");
+					return BLOCKED;
+					// 4. Sprawdziæ czy liczba nieudanych prób logowania zosta³a
+					// osi¹gniêta do blokady i max attemts jest rozna od 0
+				} else {
+					// 4.a jezeli tak to zablokowaæ usera
+					if (user.getMaxLoginAttempts() != 0 && user.getUsedLoginAttempts() >= user.getMaxLoginAttempts()) {
+						blockUser(uName);
+						System.out.println("User is blocked, achieved max login attempts");
+						return BLOCKED;
+						// 4.b jezeli nie dalej
+					} else {
+						// 5. Sprawdziæ ile by³o nieudanych prób logowania i
+						// czas
+						// progresywny od ostatniego niudanego logowania
+						// 5.a je¿eli by³o za wczeœnie podbiæ nieudane próby i
+						// zaktualizowac godzine nieudanego logowania
+						int timeToUnblock = (user.getUsedLoginAttempts()) * (user.getUsedLoginAttempts())
+								* user.getBlock_time();
+						int timeFromLastInvalidLogin = (int) ((new Date()).getTime()
+								- (user.getLastInvalidLoginDate()).getTime()) / 1000;
+						boolean toFastLogin = timeToUnblock > timeFromLastInvalidLogin ? true : false;
+						if (toFastLogin) {
+							System.out.println("Za wczesnie, wyswietlono czas do oblokowania");
+//							int timeToUnblockLogin = (user.getUsedLoginAttempts() + 1)
+//									* (user.getUsedLoginAttempts() + 1) * user.getBlock_time()-timeFromLastInvalidLogin;
+							int timeToUnblockLogin = timeToUnblock - timeFromLastInvalidLogin;
+							//jezeli nie osiagnieto max nieudancyh logowan
+							return WRONG_DATA + (timeToUnblockLogin);
+							// 5.b jezeli wszystko sie zgadza
+						} else {
+							// 6. Sprawdziæ czy has³o jest poprawne
+							// 6.a jezeli tak - zalogowaæ, zresetowaæ nieudane
+							// logowania
+							if (userValidation(uName, uPass)) {
+								connect();
+								String update_used_login_attempts = "UPDATE usersdb SET blocked=0 WHERE user_name=?";
+								try {
+									pS = (PreparedStatement) con.prepareStatement(update_used_login_attempts);
+									pS.setString(1, uName);
+									pS.executeUpdate();
+									con.close();
+								} catch (SQLException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								System.out.println("User is correctly logged in");
+								return CORRECTLY_LOGGED;
+								// 6.b je¿eli nie - podbiæ nieudane logowania,
+								// wyswietlic
+								// czas do odblokowania
+							} else {
+								if (updateInvalidLoginDateAndAttempts(uName, user)) {
+									System.out.println("Z³e has³o, dodano niudane proby logowania dla usera");
+								} else {
+									System.out.println(
+											"Nieudana próba zaktualizowania daty logowania i attempts dla usera");
+								}
+								user = refreshedLoggedUserByName(uName);
+								if(user.getMaxLoginAttempts()==user.getUsedLoginAttempts() && user.getMaxLoginAttempts()!=0){
+									blockUser(uName);
+									return BLOCKED;
+								}else{
+								timeFromLastInvalidLogin = (int) ((new Date()).getTime()
+										- (user.getLastInvalidLoginDate()).getTime()) / 1000;
+								int timeToUnblockLogin = (user.getUsedLoginAttempts())
+										* (user.getUsedLoginAttempts()) * user.getBlock_time()-timeFromLastInvalidLogin;
+								
+								//jezeli nie osiagnieto max nieudancyh logowan
+								return WRONG_DATA + (timeToUnblockLogin);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private boolean blockUser(String uName){
+		connect();
+		PreparedStatement pS;
+		String block_user = "UPDATE usersdb SET blocked=1, last_invalid_login=? WHERE user_name=?";
+		try {
+			pS = (PreparedStatement) con.prepareStatement(block_user);
+			pS.setString(1, UserDB.ft.format(new Date()));
+			pS.setString(2, uName);
+			pS.executeUpdate();
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	// public String authentication2(String uName, String uPass) {
+	// connect();
+	// PreparedStatement pS;
+	// ResultSet rS;
+	// UserDB user;
+	// try {
+	// pS = (PreparedStatement) con
+	// .prepareStatement("select * from usersdb where user_name=? and BINARY
+	// password_hash=?");
+	// pS.setString(1, uName);
+	// pS.setString(2, uPass);
+	// rS = pS.executeQuery();
+	// // jezeli login i haslo sie zgadzaja
+	// if (rS.next() && refreshedLoggedUserByName(uName).getBlocked() == 0 &&
+	// !userIsFake(uName)) {
+	//
+	// user = refreshedLoggedUserByName(uName);
+	// System.out.println("Correctly logged user " + user.getUser_name());
+	// con.close();
+	// return CORRECTLY_LOGGED;
+	//
+	// // jezeli nie zgadza sie haslo
+	// } else {
+	// // zmiany w master dla git test
+	// UserDB checkedUser = refreshedLoggedUserByName(uName);
+	// // jezeli nie przekroczono maksymalnej liczby blednych hasel
+	// if (checkedUser != null && checkedUser.getUsedLoginAttempts() <
+	// checkedUser.getMaxLoginAttempts()) {
+	// // gdy osiagnieta zosatnie maksymalna liczba nieudanych
+	// // logowan, blokada
+	// String update_used_login_attempts;
+	// if (checkedUser.getMaxLoginAttempts() -
+	// checkedUser.getUsedLoginAttempts() == 1) {
+	// update_used_login_attempts = "UPDATE usersdb SET
+	// used_login_attempts=used_login_attempts+1,"
+	// + "last_invalid_login=?, blocked=1 WHERE user_name=?";
+	// } else {
+	// update_used_login_attempts = "UPDATE usersdb SET
+	// used_login_attempts=used_login_attempts+1,"
+	// + "last_invalid_login=? WHERE user_name=?";
+	// }
+	// pS = (PreparedStatement)
+	// con.prepareStatement(update_used_login_attempts);
+	// pS.setString(1, UserDB.ft.format(new Date()));
+	// pS.setString(2, uName);
+	// pS.executeUpdate();
+	// System.out.println("Invalid attempt for user " +
+	// checkedUser.getUser_name()
+	// + ", login_attempts increased to: " + (checkedUser.getUsedLoginAttempts()
+	// + 1)
+	// + ", max attempts: " + checkedUser.getMaxLoginAttempts());
+	// con.close();
+	// return WRONG_DATA;
+	//
+	// // jezeli osiagnieto maksymalna liczbe nieudanych logowan
+	// } else if (checkedUser != null) {
+	// String last_invalid_login = "Select last_invalid_login, block_time from
+	// usersdb WHERE user_name=?";
+	// pS = (PreparedStatement) con.prepareStatement(last_invalid_login);
+	// pS.setString(1, uName);
+	// rS = pS.executeQuery();
+	// while (rS.next()) {
+	// checkedUser.setLastInvalidLoginDateFromString(rS.getString("last_invalid_login"));
+	// }
+	// System.out.println("Overload invalid attempts");
+	// int timeFromLastInvalidLogin = (int) ((new Date()).getTime()
+	// - (checkedUser.getLastInvalidLoginDate()).getTime()) / 1000;
+	// System.out.println("Time from last invalid login " +
+	// timeFromLastInvalidLogin
+	// + " / time to unblock: " + (checkedUser.getBlock_time() -
+	// timeFromLastInvalidLogin));
+	// // jezeli czas od ostatniego logowania jest wiekszy niz
+	// // minimalny
+	// if (timeFromLastInvalidLogin > checkedUser.getBlock_time()) {
+	// System.out.println("User unblocked, time after block ends: " +
+	// timeFromLastInvalidLogin);
+	// String update_used_login_attempts = "UPDATE usersdb SET
+	// used_login_attempts=0, blocked=0 WHERE user_name=?";
+	// pS = (PreparedStatement)
+	// con.prepareStatement(update_used_login_attempts);
+	// pS.setString(1, uName);
+	// pS.executeUpdate();
+	// con.close();
+	// return authentication(uName, uPass);
+	// }
+	// // zablokuj logowanie jezeli nie minal czas blokady
+	// String update_blocked_state = "UPDATE usersdb SET blocked=1 WHERE
+	// user_name=?";
+	// pS = (PreparedStatement) con.prepareStatement(update_blocked_state);
+	// pS.setString(1, uName);
+	// pS.executeUpdate();
+	// con.close();
+	// return BLOCKED;
+	//
+	// } else {
+	//
+	// System.out.println("Choosen user not exist");
+	// con.close();
+	// return WRONG_DATA;
+	// }
+	// }
+	// } catch (SQLException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// return null;
+	// }
 
 	public boolean password_check(String uName, String uPass) {
 		connect();
@@ -632,18 +829,18 @@ public class DAOforum {
 		}
 
 		Iterator it = idsUsersWithPrivilages.iterator();
-		while(it.hasNext()){
+		while (it.hasNext()) {
 			listUserDB.add(refreshedLoggedUser(it.next().toString()));
 		}
 		return listUserDB;
 	}
-	
-	public ArrayList<Integer> getEditPrivilagesForMessageByUserID(int message_id){
+
+	public ArrayList<Integer> getEditPrivilagesForMessageByUserID(int message_id) {
 		ArrayList<Integer> idsList = new ArrayList<>();
 		ArrayList<UserDB> usersList = getEditPrivilagesForMessage(message_id);
 		Iterator<UserDB> it = usersList.iterator();
-		while(it.hasNext()){
-			idsList.add(((UserDB)it.next()).getUser_id());
+		while (it.hasNext()) {
+			idsList.add(((UserDB) it.next()).getUser_id());
 		}
 		return idsList;
 	}
@@ -659,21 +856,21 @@ public class DAOforum {
 		return rs;
 	}
 
-//	public boolean permissionToEditMessage(int user_id, int message_id){
-//		
-//	}
-	
+	// public boolean permissionToEditMessage(int user_id, int message_id){
+	//
+	// }
+
 	public boolean addEditPermissionsForUser(int user_id, int message_id) {
 		ArrayList<UserDB> userList = getEditPrivilagesForMessage(message_id);
 		Iterator<UserDB> it = userList.iterator();
-		while(it.hasNext()){
-			if(it.next().getUser_id() == user_id){
+		while (it.hasNext()) {
+			if (it.next().getUser_id() == user_id) {
 				return false;
 			}
 		}
 
 		PreparedStatement pS;
-		String addPrivilages ="INSERT INTO message_edit_perm (user_id, message_id) VALUES (?, ?);";	
+		String addPrivilages = "INSERT INTO message_edit_perm (user_id, message_id) VALUES (?, ?);";
 		int updatedRows = -1;
 		try {
 			connect();
@@ -681,22 +878,23 @@ public class DAOforum {
 			pS.setString(1, Integer.toString(user_id));
 			pS.setString(2, Integer.toString(message_id));
 			updatedRows = pS.executeUpdate();
-			System.out.println("Add permission for user: "+user_id+" and message: "+message_id+", Inserted rows: " + updatedRows);
+			System.out.println("Add permission for user: " + user_id + " and message: " + message_id
+					+ ", Inserted rows: " + updatedRows);
 			con.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		if(updatedRows > 0){
+
+		if (updatedRows > 0) {
 			return true;
-		}else{		
+		} else {
 			return false;
 		}
 	}
 
 	public boolean removeEditPermissionsForUser(int remove_perm_user_id, int message_id) {
-		
+
 		PreparedStatement pS;
 		ResultSet rS;
 		int deletedRows = 0;
@@ -709,9 +907,8 @@ public class DAOforum {
 			pS.setString(2, Integer.toString(message_id));
 			deletedRows = pS.executeUpdate();
 
-
-			System.out.println("Deleted permissions, Deleted rows: " + deletedRows + " /tDeleted for message: " + message_id
-					+ " Deleted for userID: " + remove_perm_user_id);
+			System.out.println("Deleted permissions, Deleted rows: " + deletedRows + " /tDeleted for message: "
+					+ message_id + " Deleted for userID: " + remove_perm_user_id);
 			con.close();
 
 		} catch (SQLException e) {
@@ -719,10 +916,10 @@ public class DAOforum {
 			return false;
 		}
 		return true;
-		
+
 	}
 
-	public boolean userExist (String uname){
+	public boolean userExist(String uname) {
 
 		PreparedStatement pS;
 		ResultSet rS;
@@ -733,7 +930,7 @@ public class DAOforum {
 			pS.setString(1, uname);
 			rS = pS.executeQuery();
 
-			if (rS.next()){
+			if (rS.next()) {
 				con.close();
 				return true;
 			} else {
@@ -748,23 +945,26 @@ public class DAOforum {
 
 	public String createFakeUser(String uname) {
 		// TODO Auto-generated method stub
-//		String user_id = rS.getString("user_id"); //powinien byc zwrot z bazy
+		// String user_id = rS.getString("user_id"); //powinien byc zwrot z bazy
 		String user_name = uname;
-		String permissions_id = "3";//permission dla ownera
+		String permissions_id = "3";// permission dla ownera
 		String password_hash = "xxxxxxxx";
 		String last_login = UserDB.ft.format(new Date());
-//		String last_invalid_login = rS.getString("last_invalid_login"); //default ustawione w bazie
-		String max_login_attempts = Integer.toString(new Random().nextInt(10)+1);//od 1 do 10
+		String last_invalid_login = UserDB.ft.format(new Date());
+		// String last_invalid_login = rS.getString("last_invalid_login");
+		// //default ustawione w bazie
+		String max_login_attempts = Integer.toString(new Random().nextInt(6));// od
+																					// 0
+																					// do
+																					// 5
 		String used_login_attempts = "0";
-		String block_time = Integer.toString(new Random().nextInt(10)+5);
-//		String blocked = rS.getString("blocked");//defalut 0 -false
+		String block_time = Integer.toString(new Random().nextInt(10) + 5);
+		// String blocked = rS.getString("blocked");//defalut 0 -false
 		String isFake = "1";
-		
-		
+
 		String insertFakeUser = "INSERT INTO `usersdb` (`user_name`, `permissions_id`, "
-				+ "`password_hash`, `last_login`, `max_login_attempts`, `used_login_attempts`, `block_time`, `isFake`) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-		
+				+ "`password_hash`, `last_login`, `last_invalid_login`, `max_login_attempts`, `used_login_attempts`, `block_time`, `isFake`) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 		PreparedStatement pS;
 		ResultSet rS;
@@ -776,10 +976,11 @@ public class DAOforum {
 			pS.setString(2, permissions_id);
 			pS.setString(3, password_hash);
 			pS.setString(4, last_login);
-			pS.setString(5, max_login_attempts);
-			pS.setString(6, used_login_attempts);
-			pS.setString(7, block_time);
-			pS.setString(8, isFake);
+			pS.setString(5, last_invalid_login);
+			pS.setString(6, max_login_attempts);
+			pS.setString(7, used_login_attempts);
+			pS.setString(8, block_time);
+			pS.setString(9, isFake);
 			int insertedRows = pS.executeUpdate();
 			rS = pS.getGeneratedKeys();
 			rS.next();
@@ -791,13 +992,66 @@ public class DAOforum {
 			e.printStackTrace();
 			return null;
 		}
-		
+
 		String option = "";
 		option = authentication(uname, null);
 		return option;
 	}
-	
-	public boolean userIsFake (String uname){
+
+	public boolean createFakeUserBoolean(String uname) {
+		// TODO Auto-generated method stub
+		// String user_id = rS.getString("user_id"); //powinien byc zwrot z bazy
+		String user_name = uname;
+		String permissions_id = "3";// permission dla ownera
+		String password_hash = "xxxxxxxx";
+		String last_login = UserDB.ft.format(new Date());
+		String last_invalid_login = UserDB.ft.format(new Date());
+		// String last_invalid_login = rS.getString("last_invalid_login");
+		// //default ustawione w bazie
+		String max_login_attempts = Integer.toString(new Random().nextInt(5)+1);// od
+																					// 1
+																					// do
+																					// 5
+		String used_login_attempts = "1";
+		// czas bazowy blokowania w sekundach
+		String block_time = Integer.toString(new Random().nextInt(5) + 2);
+		// String blocked = rS.getString("blocked");//defalut 0 -false
+		String isFake = "1";
+
+		String insertFakeUser = "INSERT INTO `usersdb` (`user_name`, `permissions_id`, "
+				+ "`password_hash`, `last_login`, `last_invalid_login`, `max_login_attempts`, `used_login_attempts`, `block_time`, `isFake`) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+		PreparedStatement pS;
+		ResultSet rS;
+
+		try {
+			connect();
+			pS = (PreparedStatement) con.prepareStatement(insertFakeUser, Statement.RETURN_GENERATED_KEYS);
+			pS.setString(1, user_name);
+			pS.setString(2, permissions_id);
+			pS.setString(3, password_hash);
+			pS.setString(4, last_login);
+			pS.setString(5, last_invalid_login);
+			pS.setString(6, max_login_attempts);
+			pS.setString(7, used_login_attempts);
+			pS.setString(8, block_time);
+			pS.setString(9, isFake);
+			int insertedRows = pS.executeUpdate();
+			rS = pS.getGeneratedKeys();
+			rS.next();
+			int user_id = rS.getInt(1);
+			System.out.println("Added fake user with id: " + user_id);
+			con.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	public boolean userIsFake(String uname) {
 
 		PreparedStatement pS;
 		ResultSet rS;
@@ -809,7 +1063,7 @@ public class DAOforum {
 			pS.setString(1, uname);
 			rS = pS.executeQuery();
 
-			while(rS.next()){
+			while (rS.next()) {
 				isFake = rS.getString("isFake");
 			}
 			con.close();
@@ -817,9 +1071,9 @@ public class DAOforum {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(isFake.equals("1")){
+		if (isFake.equals("1")) {
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
