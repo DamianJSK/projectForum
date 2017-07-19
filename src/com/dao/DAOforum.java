@@ -255,16 +255,16 @@ public class DAOforum {
 //			if ((user.getIsFake() == 1 && user.getUsedLoginAttempts()+2<=user.getMaxLoginAttempts()) || 
 //					(user.getIsFake() == 1 && user.getMaxLoginAttempts()!=0)) {
 			if(user.getIsFake()==1 && user.getUsedLoginAttempts()+1<=user.getMaxLoginAttempts()){
-				int timeToUnblock = (user.getUsedLoginAttempts()) * (user.getUsedLoginAttempts())
+				long timeToUnblock = (user.getUsedLoginAttempts()) * (user.getUsedLoginAttempts())
 						* user.getBlock_time();
-				int timeFromLastInvalidLogin = (int) ((new Date()).getTime()
+				long timeFromLastInvalidLogin = (int) ((new Date()).getTime()
 						- (user.getLastInvalidLoginDate()).getTime()) / 1000;
 				boolean toFastLogin = timeToUnblock > timeFromLastInvalidLogin ? true : false;
 				if (toFastLogin) {
 					System.out.println("Za wczesnie, fake user, wyswietlono czas do oblokowania");
 //					int timeToUnblockLogin = (user.getUsedLoginAttempts() + 1)
 //							* (user.getUsedLoginAttempts() + 1) * user.getBlock_time()-timeFromLastInvalidLogin;
-					int timeToUnblockLogin = timeToUnblock - timeFromLastInvalidLogin;
+					long timeToUnblockLogin = timeToUnblock - timeFromLastInvalidLogin;
 					//jezeli nie osiagnieto max nieudancyh logowan
 
 					return WRONG_DATA + (timeToUnblockLogin);
@@ -307,16 +307,16 @@ public class DAOforum {
 						// progresywny od ostatniego niudanego logowania
 						// 5.a je¿eli by³o za wczeœnie podbiæ nieudane próby i
 						// zaktualizowac godzine nieudanego logowania
-						int timeToUnblock = (user.getUsedLoginAttempts()) * (user.getUsedLoginAttempts())
+						long timeToUnblock = (user.getUsedLoginAttempts()) * (user.getUsedLoginAttempts())
 								* user.getBlock_time();
-						int timeFromLastInvalidLogin = (int) ((new Date()).getTime()
+						long timeFromLastInvalidLogin = (long) ((new Date()).getTime()
 								- (user.getLastInvalidLoginDate()).getTime()) / 1000;
 						boolean toFastLogin = timeToUnblock > timeFromLastInvalidLogin ? true : false;
 						if (toFastLogin) {
 							System.out.println("Za wczesnie, wyswietlono czas do oblokowania");
 //							int timeToUnblockLogin = (user.getUsedLoginAttempts() + 1)
 //									* (user.getUsedLoginAttempts() + 1) * user.getBlock_time()-timeFromLastInvalidLogin;
-							int timeToUnblockLogin = timeToUnblock - timeFromLastInvalidLogin;
+							long timeToUnblockLogin = timeToUnblock - timeFromLastInvalidLogin;
 							//jezeli nie osiagnieto max nieudancyh logowan
 							return WRONG_DATA + (timeToUnblockLogin);
 							// 5.b jezeli wszystko sie zgadza
@@ -355,7 +355,7 @@ public class DAOforum {
 								}else{
 								timeFromLastInvalidLogin = (int) ((new Date()).getTime()
 										- (user.getLastInvalidLoginDate()).getTime()) / 1000;
-								int timeToUnblockLogin = (user.getUsedLoginAttempts())
+								long timeToUnblockLogin = (user.getUsedLoginAttempts())
 										* (user.getUsedLoginAttempts()) * user.getBlock_time()-timeFromLastInvalidLogin;
 								
 								//jezeli nie osiagnieto max nieudancyh logowan
