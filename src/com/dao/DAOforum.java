@@ -37,30 +37,30 @@ public class DAOforum {
 	}
 
 	// local access
-	public void connect() {
-
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/login", "root", "");
-
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-	}
+//	public void connect() {
+//
+//		try {
+//			Class.forName("com.mysql.jdbc.Driver");
+//			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/login", "root", "");
+//
+//		} catch (ClassNotFoundException | SQLException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	// remote access
-	// public void connect() {
-	//
-	// try {
-	// Class.forName("com.mysql.jdbc.Driver");
-	// con = (Connection)
-	// DriverManager.getConnection("jdbc:mysql://172.30.62.42:3306/sampledb",
-	// "root2", "rootmysql12");
-	//
-	// } catch (ClassNotFoundException | SQLException e) {
-	// e.printStackTrace();
-	// }
-	// }
+	 public void connect() {
+	
+	 try {
+	 Class.forName("com.mysql.jdbc.Driver");
+	 con = (Connection)
+	 DriverManager.getConnection("jdbc:mysql://172.30.62.42:3306/sampledb",
+	 "root2", "rootmysql12");
+	
+	 } catch (ClassNotFoundException | SQLException e) {
+	 e.printStackTrace();
+	 }
+	 }
 
 	public Connection getConnection() {
 		Connection con = null;
