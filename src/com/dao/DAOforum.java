@@ -63,12 +63,25 @@ public class DAOforum {
 //	 }
 //empty change
 	// remote access2
+//	 public void connect() {
+//	
+//	 try {
+//	 Class.forName("com.mysql.jdbc.Driver");
+//	 con = (Connection)
+//	 DriverManager.getConnection("jdbc:mysql://172.31.56.187:3306/sampledb",
+//	 "root2", "rootmysql12");
+//	
+//	 } catch (ClassNotFoundException | SQLException e) {
+//	 e.printStackTrace();
+//	 }
+//	 }
+	// remote access3
 	 public void connect() {
 	
 	 try {
 	 Class.forName("com.mysql.jdbc.Driver");
 	 con = (Connection)
-	 DriverManager.getConnection("jdbc:mysql://172.31.56.187:3306/sampledb",
+	 DriverManager.getConnection("jdbc:mysql://10.130.152.176:3306/sampledb",
 	 "root2", "rootmysql12");
 	
 	 } catch (ClassNotFoundException | SQLException e) {
